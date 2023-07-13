@@ -1,0 +1,11 @@
+{
+  "name": "leave-management",
+  "version": "1.0.0",
+  "description": "A leave management system",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Kariuki George Thuo",
+  "license": "ISC"
+}
