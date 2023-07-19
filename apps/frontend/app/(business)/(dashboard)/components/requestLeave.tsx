@@ -49,6 +49,13 @@ const RequestLeave = () => {
         });
         return;
       }
+      if (endDate && date > endDate) {
+        toast({
+          variant: 'destructive',
+          title: 'End date should be greater than start Date',
+        });
+        return;
+      }
       setStartDate(date);
     }
     if (input === 'END') {
@@ -63,7 +70,7 @@ const RequestLeave = () => {
       if (date < startDate!) {
         toast({
           variant: 'destructive',
-          title: 'End date should be greated than start Date',
+          title: 'End date should be greater than start Date',
         });
         return;
       }
