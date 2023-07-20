@@ -1,0 +1,19 @@
+{
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "drizzle/drizzle/(.*)": "<rootDir>/../libs/drizzle/src/$1",
+    "drizzle/drizzle": "<rootDir>/../libs/drizzle/src",
+    "@db/prisma/(.*)": "<rootDir>/../libs/prisma/src/$1",
+    "@db/prisma": "<rootDir>/../libs/prisma/src"
+  }
+}

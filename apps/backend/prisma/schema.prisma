@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model LeaveTypes {
+  name   String
+  code   String   @id
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt() @default(now())
+  leaves Leaves[]
+}
+
+model Leaves {
+  leaveId    Int         @id @default(autoincrement()) 
+  startDate  DateTime    @db.Date
+  endDate    DateTime    @db.Date
+  leaveType  String?
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt() @default(now()) 
+  userId     Int?
+  leaveTypes LeaveTypes? @relation(fields: [leaveType], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "leaves_leaveType_leaveTypes_code_fk")
+  users      Users?      @relation(fields: [userId], references: [userId], onDelete: NoAction, onUpdate: NoAction, map: "leaves_userId_users_userId_fk")
+}
+
+model Users {
+  userId              Int    @id
+  email               String?   @unique(map: "users_email_unique")
+  firstName           String?
+  lastName            String?
+  password            String?
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt() @default(now())
+  leaveRemaining      Int?      @db.SmallInt
+  leaveLastUpdateDate DateTime? @db.Date
+  jwtVersion          Int?      
+  leaves              Leaves[]
+}
