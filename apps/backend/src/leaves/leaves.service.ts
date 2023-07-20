@@ -17,12 +17,12 @@ export class LeavesService {
   constructor(
     private readonly dbService: PrismaService,
     private readonly usersService: UsersService,
-    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
+    @Inject(CACHE_MANAGER) private readonly cacheService: Cache
   ) {}
 
   async createLeave(
     { code, endDate, startDate, totalDays }: CreateLeaveDto,
-    user: IUser,
+    user: IUser
   ): Promise<ILeave> {
     endDate = this.setTime(endDate);
     startDate = this.setTime(startDate);
@@ -34,7 +34,7 @@ export class LeavesService {
     // Validate that the user is not on any leave
     if (await this.isOnLeave(startDate, endDate)) {
       throw new BadRequestException(
-        'Another leave overlaps with this leave, kindly check the start and end dates.',
+        'Another leave overlaps with this leave, kindly check the start and end dates.'
       );
     }
     // Validate number of remaining leaves
@@ -101,7 +101,7 @@ export class LeavesService {
     const currentWorkingYear = this.getCurrentLeaveYear();
 
     let leaves: ILeaveWithUser[] = await this.cacheService.get(
-      'leaves-code-' + code,
+      'leaves-code-' + code
     );
     if (leaves) {
       return leaves;

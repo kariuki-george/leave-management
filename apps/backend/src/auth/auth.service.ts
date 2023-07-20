@@ -16,7 +16,7 @@ export class AuthService {
   constructor(
     private readonly dbService: PrismaService,
     private readonly configService: ConfigService,
-    private readonly usersService: UsersService,
+    private readonly usersService: UsersService
   ) {}
 
   async login({
@@ -27,7 +27,7 @@ export class AuthService {
     const user = await this.dbService.users.findUnique({ where: { email } });
     if (!user) {
       throw new NotFoundException(
-        'User with the provided details does not exist',
+        'User with the provided details does not exist'
       );
     }
     // Validate pass
@@ -53,7 +53,7 @@ export class AuthService {
       {
         audience: 'LMS-AUTH',
         issuer: 'LMS',
-      },
+      }
     );
     return { user: updatedUser, authToken };
   }

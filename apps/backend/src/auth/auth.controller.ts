@@ -8,12 +8,12 @@ import { ConfigService } from '@nestjs/config';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {}
   @Post('/login')
   async login(
     @Body() input: LoginDto,
-    @Res({ passthrough: true }) res,
+    @Res({ passthrough: true }) res
   ): Promise<IUser> {
     const { authToken, user } = await this.authService.login(input);
     res.cookie('aid', authToken, {

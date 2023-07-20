@@ -9,7 +9,7 @@ import { Cache } from 'cache-manager';
 export class LeaveTypesService {
   constructor(
     private readonly dbService: PrismaService,
-    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
+    @Inject(CACHE_MANAGER) private readonly cacheService: Cache
   ) {}
 
   async createLeaveType(data: CreateLeaveTypeDto): Promise<ILeaveType> {
@@ -20,7 +20,7 @@ export class LeaveTypesService {
     } catch (error) {
       if (error.code === 'P2002') {
         throw new BadRequestException(
-          'Leave Type with the provided code already exists',
+          'Leave Type with the provided code already exists'
         );
       }
       throw new BadRequestException('Something went wrong, please try again');

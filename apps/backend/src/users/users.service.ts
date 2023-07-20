@@ -16,7 +16,7 @@ import { Users } from '@prisma/client';
 export class UsersService {
   constructor(
     private readonly dbService: PrismaService,
-    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
+    @Inject(CACHE_MANAGER) private readonly cacheService: Cache
   ) {}
 
   async assignUser({
@@ -71,7 +71,7 @@ export class UsersService {
       // Handle user already exists
       if (error.code === 'P2002') {
         throw new BadRequestException(
-          'User with the provided info already exists',
+          'User with the provided info already exists'
         );
       }
       throw new BadRequestException('Something went wrong please try again');
