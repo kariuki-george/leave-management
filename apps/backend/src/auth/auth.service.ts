@@ -48,6 +48,7 @@ export class AuthService {
         email,
         userId: user.userId,
         version: user.jwtVersion + 1,
+        expires: Date.now() + 1000 * 60 * 60 * 24, // 1 day
       },
       this.configService.get('JWT_SECRET'),
       {
@@ -60,7 +61,12 @@ export class AuthService {
 
   async checkAuth(authToken: string): Promise<IUser> {
     // Verify authToken
-    let payload: { userId: number; email: string; version: number };
+    let payload: {
+      userId: number;
+      email: string;
+      version: number;
+      expires: number;
+    };
     try {
       payload = (await verify(authToken, this.configService.get('JWT_SECRET'), {
         audience: 'LMS-AUTH',
@@ -80,6 +86,15 @@ export class AuthService {
     if (payload.version !== user.jwtVersion)
       throw new BadRequestException('Authentication failed');
 
+    // Validate token expiry date
+    if (payload.expires < Date.now()) {
+      throw new BadRequestException('Authentication failed');
+    }
+
     return user;
+  }
+
+  logout(userId: number) {
+    return this.usersService.updateUser(userId, { jwtVersion: 0 });
   }
 }
