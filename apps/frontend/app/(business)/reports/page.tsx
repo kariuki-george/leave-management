@@ -67,7 +67,7 @@ const Page = () => {
       <div className="w-full min-w-[600px] rounded-sm border md:w-3/5 md:border-0">
         <Table className="h-full min-w-[600px] overflow-x-auto overflow-y-hidden  md:h-full md:w-full  md:overflow-y-auto ">
           <TableCaption>A list of leaves</TableCaption>
-          <TableHeader>
+          <TableHeader className="w-full">
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
@@ -76,7 +76,7 @@ const Page = () => {
             </TableRow>
           </TableHeader>
 
-          <TableBody>
+          <TableBody className="w-full">
             {data &&
               data.map((leave: ILeaveWithUser) => (
                 <TableRow
