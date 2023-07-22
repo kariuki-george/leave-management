@@ -8,29 +8,77 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { leaves } from '@/lib/types/leave';
+import { getUserLeaves, getUsers } from '@/lib/fetchers';
+import { prepareUserLeaves } from '@/lib/helpers';
+import { queryClient } from '@/lib/providers/reactquery.provider';
+import { ILeave } from '@/lib/types/leave';
+import { IleaveTypeString, leaves } from '@/lib/types/leaveTypes';
+import { IUser } from '@/lib/types/user';
 import { cn } from '@/lib/utils';
-import React, { useState } from 'react';
-
-const list = {
-  remainingDays: 3,
-};
+import { useAuthStore } from '@/state/auth.state';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useQuery } from 'react-query';
 
 const Year = () => {
-  const [active, setActive] = useState('CL');
+  const user = useAuthStore((state) => state.user);
+  const [activeLeaveType, setActiveLeaveType] =
+    useState<IleaveTypeString>('CL');
+  const [currentUser, setCurrentUser] = useState<Partial<IUser>>();
+
+  // Set Default user
+  useEffect(() => {
+    setCurrentUser(user);
+  }, []);
+
+  // Get users
+  const users = useQuery({
+    queryFn: getUsers,
+    queryKey: ['getUsers'],
+  });
+
+  // Perform a fetch
+  const { data } = useQuery({
+    queryFn: async () => {
+      const data = await getUserLeaves(currentUser!.userId!.toString());
+      return data.data;
+    },
+    queryKey: ['userLeaves', currentUser?.userId],
+    keepPreviousData: true,
+    enabled: !!currentUser,
+  });
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['userLeaves', currentUser] });
+  }, [currentUser]);
+
+  // Prepare leaves
+
+  // const cachedValue = useMemo(calculateValue, dependencies);
+  const cachedSummary = useMemo(() => {
+    if (data) {
+      return prepareUserLeaves(data as ILeave[]);
+    }
+  }, [data]);
+
   return (
     <div className="flex h-screen w-full">
       {/* Side with user details */}
       <div className="min-w-400px flex h-full w-1/3  flex-col border-r p-3">
         {/* Select User */}
-        <Select>
+        <Select
+          onValueChange={(val) => {
+            setCurrentUser(JSON.parse(val));
+          }}
+        >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select User" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="light">John Doe</SelectItem>
-            <SelectItem value="dark">Lorem Ipsum</SelectItem>
-            <SelectItem value="system">Dolor Sit Amet</SelectItem>
+            {users.data &&
+              users?.data.map((user: Partial<IUser>) => (
+                <SelectItem value={JSON.stringify(user)} key={user?.userId}>
+                  {user?.firstName + ' ' + user?.lastName}
+                </SelectItem>
+              ))}
           </SelectContent>
         </Select>
         {/* User summary */}
@@ -41,12 +89,12 @@ const Year = () => {
               <li
                 key={index}
                 className="flex items-center justify-between hover:cursor-pointer"
-                onClick={() => setActive(code)}
+                onClick={() => setActiveLeaveType(code)}
               >
                 <span
                   className={cn(
                     'flex  items-center gap-2',
-                    active === code ? 'font-bold' : 'font-semibold'
+                    activeLeaveType === code ? 'font-bold' : 'font-semibold'
                   )}
                 >
                   <span
@@ -65,13 +113,14 @@ const Year = () => {
                   {name}
                 </span>
 
-                <span>{6}</span>
+                <span>{cachedSummary && cachedSummary[code].total}</span>
               </li>
             ))}
           </ul>
           <span className="flex justify-between p-3">
             {' '}
-            Remaining Leave Days: <span>{list.remainingDays}</span>{' '}
+            Remaining Leave Days:{' '}
+            <span>{currentUser?.leaveRemaining ?? 0}</span>{' '}
           </span>
         </section>
       </div>
@@ -81,34 +130,26 @@ const Year = () => {
         <ul className="mb-32 flex flex-wrap justify-evenly gap-3 ">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((_, index) => (
             <Calendar
+              showOutsideDays={false}
               month={new Date(new Date().setMonth(index + 5))}
               className="my-3 shadow  "
               cellColor={
-                active === 'PL'
+                activeLeaveType === 'PL'
                   ? 'bg-green-300'
-                  : active === 'SL'
+                  : activeLeaveType === 'SL'
                   ? 'bg-red-300'
-                  : active === 'PTL'
+                  : activeLeaveType === 'PTL'
                   ? 'bg-purple-300'
-                  : active === 'CL'
+                  : activeLeaveType === 'CL'
                   ? 'bg-yellow-300'
-                  : active === 'UP'
+                  : activeLeaveType === 'UP'
                   ? 'bg-cyan-300'
                   : 'bg-orange-300'
-                // active === 'ML' ? 'bg-orange-300'
               }
               key={index}
               mode="multiple"
               disableNavigation={true}
-              selected={[
-                new Date(),
-                new Date(2023, 1, 22),
-                new Date(2023, 1, 23),
-                new Date(2023, 3, 22),
-                new Date(2023, 3, 23),
-                new Date(2023, 7, 22),
-                new Date(2023, 7, 23),
-              ]}
+              selected={cachedSummary && cachedSummary[activeLeaveType].days}
             />
           ))}
         </ul>

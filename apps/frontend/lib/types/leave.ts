@@ -1,28 +1,19 @@
-export type ILeave =
-  | {
-      code: 'PL';
-      name: 'Priviledge Leave';
-    }
-  | { code: 'UP'; name: 'Unpaid Leave' }
-  | {
-      code: 'SL';
-      name: 'Sick Leave';
-    }
-  | { name: 'Casual Leave'; code: 'CL' }
-  | {
-      code: 'ML';
-      name: 'Maternity Leave';
-    }
-  | {
-      code: 'PTL';
-      name: 'Paternity Leave';
-    };
+import { ILeaveType } from './leaveTypes';
+import { IUser } from './user';
 
-export const leaves: ILeave[] = [
-  { code: 'CL', name: 'Casual Leave' },
-  { code: 'ML', name: 'Maternity Leave' },
-  { code: 'PL', name: 'Priviledge Leave' },
-  { code: 'PTL', name: 'Paternity Leave' },
-  { code: 'SL', name: 'Sick Leave' },
-  { code: 'UP', name: 'Unpaid Leave' },
-];
+export interface ILeave {
+  leaveId: number;
+  startDate: Date;
+  endDate: Date;
+  userId: number;
+  leaveTypes: ILeaveType;
+}
+
+// leaves with user
+export interface ILeaveWithUser {
+  leaveId: number;
+  startDate: Date;
+  endDate: Date;
+  leaveTypes: ILeaveType;
+  users: Partial<IUser>;
+}

@@ -1,15 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { IUser } from '@/state/auth.state';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
 import * as z from 'zod';
 
 import { siteConfig } from '@/config/site';
-import { errorParser, getStarted } from '@/lib/fetchers';
+import { assignUser } from '@/lib/fetchers';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -26,7 +24,7 @@ import { toast } from '@/components/ui/use-toast';
 // Form validation
 const formSchema = z.object({
   email: z.string().email(),
-  employeeId: z.number().min(8),
+  employeeId: z.coerce.number().min(8).positive(),
   password: z.string().min(8),
   confirmPassword: z.string().min(8), // Might require extra validation
 });
@@ -45,7 +43,7 @@ export const RegisterForm = () => {
 
   // Submit
   const router = useRouter();
-  const { mutate, isLoading } = useMutation('getStarted', getStarted, {
+  const { mutate, isLoading } = useMutation('assignUser', assignUser, {
     onSuccess: (data: any) => {
       toast({
         title: 'Account created successfully!',

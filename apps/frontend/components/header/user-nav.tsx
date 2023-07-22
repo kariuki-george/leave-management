@@ -25,6 +25,7 @@ export function UserNav() {
   const handleLogout = () => {
     sessionStorage.clear();
     state?.clear();
+
     router.replace(siteConfig.nav.auth.login);
   };
   return (
@@ -32,7 +33,11 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarFallback>{state?.user?.name.slice(0, 3)}</AvatarFallback>
+            <AvatarFallback>
+              {state?.user
+                ? state.user.firstName[0] + state.user.lastName[0]
+                : ''}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -40,7 +45,7 @@ export function UserNav() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {state?.user?.name}
+              {state?.user?.firstName}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
               {state?.user?.email}
@@ -62,11 +67,16 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <LogOut className="mr-2 h-4 w-4" />
-          <button onClick={handleLogout}>Log out</button>
-          <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-        </DropdownMenuItem>
+        <button
+          className="flex w-full items-center  text-center"
+          onClick={handleLogout}
+        >
+          <DropdownMenuItem className="w-full justify-between hover:cursor-pointer">
+            <LogOut className="mr-2 h-4 w-4" />
+            Log out
+            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+          </DropdownMenuItem>
+        </button>
       </DropdownMenuContent>
     </DropdownMenu>
   );

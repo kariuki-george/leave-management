@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -16,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { leaves } from '@/lib/types/leave';
+import { leaves as leaveTypes } from '@/lib/types/leaveTypes';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -26,19 +25,20 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { CalendarIcon } from '@radix-ui/react-icons';
-import { eachDayOfInterval, format, isWeekend } from 'date-fns';
+import { format } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
-
-function countWeekdays(startDate: Date, endDate: Date) {
-  const allDates = eachDayOfInterval({ start: startDate, end: endDate });
-  const weekdays = allDates.filter((date) => !isWeekend(date));
-  return weekdays.length;
-}
+import { useMutation } from 'react-query';
+import { addLeave } from '@/lib/fetchers';
+import { useAuthStore } from '@/state/auth.state';
+import { countWeekdays } from '@/lib/helpers';
+import { queryClient } from '@/lib/providers/reactquery.provider';
+import { ILeaveWithUser } from '@/lib/types/leave';
 
 const RequestLeave = () => {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [totalDays, setTotalDays] = useState(0);
+  const [leaveType, setLeaveType] = useState('');
 
   const validateDates = (date: Date, input: 'START' | 'END') => {
     if (input === 'START') {
@@ -85,6 +85,51 @@ const RequestLeave = () => {
     }
   }, [startDate, endDate]);
 
+  // Handle submit
+  const { setUser, user } = useAuthStore((state) => state);
+  const { isLoading, mutate } = useMutation({
+    mutationFn: addLeave,
+    mutationKey: 'addLeave',
+    onSuccess: ({ data }: { data: ILeaveWithUser }) => {
+      toast({ title: 'Added your leave successfully!' });
+      setUser({
+        ...user!,
+        leaveRemaining:
+          data.users?.leaveRemaining ?? user?.leaveRemaining! - totalDays,
+      });
+      // To get the realtime update on the year page
+      queryClient.invalidateQueries(['userLeaves', user?.userId]);
+      queryClient.invalidateQueries(['recentLeaves']);
+    },
+  });
+
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+
+    if (!(leaveType && startDate && endDate)) {
+      toast({ variant: 'destructive', title: 'Please fill all fields' });
+      return;
+    }
+    if (totalDays === 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Total number of days should be greater than 0',
+      });
+      return;
+    }
+
+    if (totalDays > user?.leaveRemaining!) {
+      toast({
+        variant: 'destructive',
+        title:
+          'Total number of days should be less than the number of remaining leaves',
+      });
+      return;
+    }
+
+    mutate({ totalDays, code: leaveType, startDate, endDate });
+  };
+
   return (
     <Sheet>
       <SheetTrigger>
@@ -96,14 +141,14 @@ const RequestLeave = () => {
         <SheetHeader>
           <SheetTitle>Add your leave</SheetTitle>
         </SheetHeader>
-        <div className="flex flex-col gap-6">
+        <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
           {/* Leave Type */}
-          <Select>
+          <Select onValueChange={setLeaveType}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select Leave Type" />
             </SelectTrigger>
             <SelectContent>
-              {leaves.map((leave) => (
+              {leaveTypes.map((leave) => (
                 <SelectItem key={leave.code} value={leave.code}>
                   {leave.name}
                 </SelectItem>
@@ -175,8 +220,10 @@ const RequestLeave = () => {
           </div>
 
           {/* Submit */}
-          <Button className="w-full">Apply for {totalDays} days</Button>
-        </div>
+          <Button type="submit" className="w-full" isLoading={isLoading}>
+            Apply for {totalDays} days
+          </Button>
+        </form>
       </SheetContent>
     </Sheet>
   );

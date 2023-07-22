@@ -7,8 +7,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { leaves } from '@/lib/types/leave';
 import { cn } from '@/lib/utils';
+import { leaves } from '@/lib/types/leaveTypes';
 
 const Page = () => {
   return (

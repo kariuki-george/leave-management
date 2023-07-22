@@ -2,12 +2,13 @@ import { useAuthStore } from '@/state/auth.state';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
 import { toast } from '@/components/ui/use-toast';
+import { IUser } from '../types/user';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
-// if (!API) {
-//   throw new Error("Api Url is not defined")
-// }
+if (!API) {
+  throw new Error('Api Url is not defined');
+}
 
 // Common
 
@@ -31,15 +32,35 @@ const deleteMutation = (url: string, config?: AxiosRequestConfig) => {
     headers: { aid: useAuthStore.getState().authToken },
   });
 };
-
 // Auth
 
-export const getStarted = (user: any) => {
-  return axios.post(API + 'users', user);
+export const assignUser = (user: any) => {
+  return axios.post(API + 'users/assign', user);
 };
 
 export const login = (data: any) => {
   return axios.post(API + 'auth/login', data);
+};
+
+// Dashboard
+
+export const getRecentLeaves = () => {
+  return query(API + 'leaves/recent');
+};
+
+export const addLeave = (data: any) => {
+  return postMutate(API + 'leaves', data);
+};
+
+// Year
+
+export const getUsers = async (): Promise<IUser[]> => {
+  const { data } = await query(API + 'users');
+  return data as IUser[];
+};
+
+export const getUserLeaves = (userId: string) => {
+  return query(API + 'leaves/user?userId=' + userId);
 };
 
 export const errorParser = (error: AxiosError) => {
@@ -47,6 +68,11 @@ export const errorParser = (error: AxiosError) => {
     const { data } = error.response as any;
     if (data?.message) {
       if (typeof data?.message === 'string') {
+        // Authentication error
+        if (data.message === 'Authentication failed') {
+          location.href = '/landing';
+        }
+
         return toast({
           variant: 'destructive',
           title: data.error,

@@ -14,14 +14,14 @@ interface IProps {
 const AuthProvider = ({ children }: IProps) => {
   const router = useRouter();
 
-  // Check if authToken exists
-  const authToken = useAuthStore((state) => state.authToken);
+  // Check if user exists
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
-    if (!authToken) {
-      // router.push(siteConfig.nav.landing);
+    if (!user) {
+      router.push(siteConfig.nav.landing);
     }
-  }, [authToken]);
+  }, [user, router]);
 
   return <>{children}</>;
 };

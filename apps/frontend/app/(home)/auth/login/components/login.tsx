@@ -25,17 +25,17 @@ import { toast } from '@/components/ui/use-toast';
 export const LoginForm = () => {
   // Login Functionality
   const router = useRouter();
-  const { setAuthToken, setUser } = useAuthStore();
+  const { setUser, setAuthToken } = useAuthStore();
   const { mutate } = useMutation({
     mutationFn: login,
     onSuccess: ({ data }) => {
-      setAuthToken(data.authJWT);
       setUser(data.user);
-      router.replace(siteConfig.nav.dashboard);
+      setAuthToken(data.authToken);
       toast({
         title: 'Successfully logged in',
-        description: `Hi ${data.user.name}, welcome back🎉`,
+        description: `Hi ${data?.user?.firstName}, welcome back🎉`,
       });
+      router.replace(siteConfig.nav.dashboard);
     },
   });
 
