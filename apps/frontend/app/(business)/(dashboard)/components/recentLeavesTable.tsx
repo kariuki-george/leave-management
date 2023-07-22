@@ -22,7 +22,7 @@ const RecentLeavesTable = () => {
   });
 
   return (
-    <Table>
+    <Table className="mb-4 w-full min-w-[600px] overflow-x-auto">
       <TableCaption>A list of some recent leaves.</TableCaption>
       <TableHeader>
         <TableRow>

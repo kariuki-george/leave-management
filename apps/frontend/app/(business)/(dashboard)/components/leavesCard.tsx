@@ -9,7 +9,6 @@ const LeavesCard = () => {
 
   return (
     <span className="p-3 text-lg font-bold">
-      {' '}
       {user?.leaveRemaining ?? 0} /35
     </span>
   );

@@ -67,7 +67,7 @@ export const RegisterForm = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="] flex w-full max-w-[500px] flex-col gap-3"
+        className=" flex w-full max-w-[300px]  flex-col  gap-3 sm:w-full "
       >
         <FormField
           control={form.control}

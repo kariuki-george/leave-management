@@ -12,14 +12,14 @@ import { leaves } from '@/lib/types/leaveTypes';
 
 const Page = () => {
   return (
-    <div className="flex h-full w-full justify-between ">
+    <div className="flex h-full w-full flex-col justify-normal  gap-3 p-3 sm:flex-row sm:justify-between">
       {/* Router */}
-      <div className="h-full w-1/5 border-r p-3 ">
-        <ul className="flex flex-col gap-3">
+      <div className="h-fit w-full rounded-sm border sm:h-full  sm:w-1/5 sm:border-0">
+        <ul className="grid grid-cols-2 gap-3  sm:grid-cols-1">
           {leaves.map(({ code, name }) => (
             <li
               key={code}
-              className="flex   items-center justify-between rounded-sm p-3 hover:cursor-pointer hover:bg-accent hover:font-semibold"
+              className="hover:bg-accent   flex items-center justify-between rounded-sm p-3 hover:cursor-pointer hover:font-semibold"
             >
               <span className="flex items-center gap-2 font-semibold">
                 <span
@@ -43,8 +43,8 @@ const Page = () => {
       </div>
 
       {/* Table */}
-      <div className="mt-3 h-full w-3/5">
-        <Table>
+      <div className="h-fit w-full overflow-y-auto  rounded-sm border sm:h-full sm:w-3/5 sm:border-0 ">
+        <Table className="w-full min-w-[600px] overflow-x-auto sm:w-3/5">
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
@@ -67,7 +67,7 @@ const Page = () => {
       </div>
 
       {/* More Info */}
-      <div className="h-full w-1/5 border-l pt-3">
+      <div className="hidden  h-full w-1/5 border-l pt-3 sm:flex">
         {/* Per leave stats */}
         <section className="flex w-full flex-col border-b p-3">
           <h2 className="text-lg font-semibold ">Priviledge Leave</h2>

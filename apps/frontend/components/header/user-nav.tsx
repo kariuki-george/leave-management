@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/state/auth.state';
 import useStore from '@/state/useStore';
-import { LogOut, Settings, User } from 'lucide-react';
+import { BarChart4, Calendar, Home, LogOut, Settings } from 'lucide-react';
 
 import { siteConfig } from '@/config/site';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -15,9 +15,9 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import Link from 'next/link';
 
 export function UserNav() {
   const state = useStore(useAuthStore, (state) => state);
@@ -54,16 +54,32 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <User className="mr-2 h-4 w-4" />
-            <span>Profile</span>
-            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-          </DropdownMenuItem>
+          <Link href={siteConfig.nav.dashboard}>
+            <DropdownMenuItem>
+              <Home className="mr-2 h-4 w-4" />
+              <span>Dashboard</span>
+              {/* <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut> */}
+            </DropdownMenuItem>
+          </Link>
+          <Link href={siteConfig.nav.year}>
+            <DropdownMenuItem>
+              <Calendar className="mr-2 h-4 w-4" />
+              <span>My Year</span>
+              {/* <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut> */}
+            </DropdownMenuItem>
+          </Link>
+          <Link href={siteConfig.nav.reports}>
+            <DropdownMenuItem>
+              <BarChart4 className="mr-2 h-4 w-4" />
+              <span>Reports</span>
+              {/* <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut> */}
+            </DropdownMenuItem>
+          </Link>
 
           <DropdownMenuItem>
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
-            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+            {/* <DropdownMenuShortcut>⌘S</DropdownMenuShortcut> */}
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -71,10 +87,10 @@ export function UserNav() {
           className="flex w-full items-center  text-center"
           onClick={handleLogout}
         >
-          <DropdownMenuItem className="w-full justify-between hover:cursor-pointer">
+          <DropdownMenuItem className="w-full  hover:cursor-pointer">
             <LogOut className="mr-2 h-4 w-4" />
             Log out
-            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+            {/* <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut> */}
           </DropdownMenuItem>
         </button>
       </DropdownMenuContent>

@@ -1,5 +1,4 @@
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
-
 import React from 'react';
 import RequestLeave from './components/requestLeave';
 import LeavesCard from './components/leavesCard';
@@ -26,7 +25,7 @@ const Dashboard = () => {
         </Card>
       </div>
       {/* Latest leaves */}
-      <div className="mt-4 w-full rounded-sm border">
+      <div className="my-4 w-full rounded-sm border ">
         <RecentLeavesTable />
       </div>
     </div>
