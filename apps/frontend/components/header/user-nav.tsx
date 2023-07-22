@@ -18,15 +18,26 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
+import { useMutation } from 'react-query';
+import { logout } from '@/lib/fetchers';
+import { toast } from '../ui/use-toast';
 
 export function UserNav() {
   const state = useStore(useAuthStore, (state) => state);
   const router = useRouter();
-  const handleLogout = () => {
-    sessionStorage.clear();
-    state?.clear();
 
-    router.replace(siteConfig.nav.auth.login);
+  const { mutate } = useMutation({
+    mutationFn: logout,
+    onSuccess: () => {
+      sessionStorage.clear();
+      state?.clear();
+      router.replace(siteConfig.nav.auth.login);
+    },
+  });
+
+  const handleLogout = () => {
+    mutate();
+    toast({ title: 'Will log you out shortly' });
   };
   return (
     <DropdownMenu>
@@ -47,7 +58,7 @@ export function UserNav() {
             <p className="text-sm font-medium leading-none">
               {state?.user?.firstName}
             </p>
-            <p className="text-xs leading-none text-muted-foreground">
+            <p className="text-muted-foreground text-xs leading-none">
               {state?.user?.email}
             </p>
           </div>

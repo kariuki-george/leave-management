@@ -42,6 +42,10 @@ export const login = (data: any) => {
   return axios.post(API + 'auth/login', data);
 };
 
+export const logout = () => {
+  return postMutate(API + 'auth/login', {});
+};
+
 // Dashboard
 
 export const getRecentLeaves = () => {
