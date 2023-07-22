@@ -10,9 +10,7 @@ export class CreateLeaveTypeDto {
 }
 
 export class CreateLeaveDto {
-  @IsDateString()
   startDate: Date;
-  @IsDateString()
   endDate: Date;
   @IsString()
   code: string;
