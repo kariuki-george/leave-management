@@ -43,7 +43,7 @@ export const login = (data: any) => {
 };
 
 export const logout = () => {
-  return postMutate(API + 'auth/login', {});
+  return postMutate(API + 'auth/logout', {});
 };
 
 // Dashboard
