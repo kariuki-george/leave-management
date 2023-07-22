@@ -67,6 +67,11 @@ export const getUserLeaves = (userId: string) => {
   return query(API + 'leaves/user?userId=' + userId);
 };
 
+// Reports
+export const getLeaves = (code: string) => {
+  return query(API + 'leaves?code=' + code);
+};
+
 export const errorParser = (error: AxiosError) => {
   if (error.response) {
     const { data } = error.response as any;

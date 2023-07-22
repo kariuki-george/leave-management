@@ -35,7 +35,6 @@ const RequestLeaveForm = () => {
   const [leaveType, setLeaveType] = useState('');
 
   const validateDates = (date: Date, input: 'START' | 'END') => {
-    console.log(date);
     if (input === 'START') {
       if (date < new Date()) {
         toast({
@@ -121,7 +120,6 @@ const RequestLeaveForm = () => {
       });
       return;
     }
-    console.log('hi');
 
     mutate({
       totalDays,

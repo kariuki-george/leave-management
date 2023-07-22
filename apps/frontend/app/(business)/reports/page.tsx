@@ -1,16 +1,35 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
-import { leaves } from '@/lib/types/leaveTypes';
+import { IleaveTypeString, leaves } from '@/lib/types/leaveTypes';
+import { useQuery } from 'react-query';
+import { getLeaves } from '@/lib/fetchers';
+import { ILeaveWithUser } from '@/lib/types/leave';
+import { format } from 'date-fns';
 
 const Page = () => {
+  const [activeLeaveType, setActiveLeaveType] =
+    useState<IleaveTypeString>('CL');
+  const [activeLeave, setActiveLeave] = useState<ILeaveWithUser>();
+
+  const { data } = useQuery({
+    queryFn: async () => {
+      const data = await getLeaves(activeLeaveType);
+      return data.data;
+    },
+    queryKey: ['leaves', activeLeaveType],
+  });
+
   return (
     <div className="flex h-full w-full flex-col justify-normal gap-3 overflow-y-auto p-3  md:flex-row md:justify-between md:gap-0  md:overflow-hidden md:p-0">
       {/* Router */}
@@ -18,6 +37,10 @@ const Page = () => {
         {leaves.map(({ code, name }) => (
           <li
             key={code}
+            onClick={() => {
+              setActiveLeave(undefined);
+              setActiveLeaveType(code);
+            }}
             className="hover:bg-accent flex   items-center justify-between rounded-sm  p-3 hover:cursor-pointer hover:font-semibold"
           >
             <span className="flex items-center gap-2 font-semibold">
@@ -41,47 +64,68 @@ const Page = () => {
       </ul>
 
       {/* Table */}
-
-      <Table className="h-fit w-full min-w-[600px] overflow-x-auto overflow-y-hidden rounded-sm border md:h-full md:w-3/5  md:overflow-y-auto md:border-0">
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Start Date</TableHead>
-            <TableHead>End Date</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {[
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-            1, 1, 1,
-          ].map((_, index) => (
-            <TableRow className="hover:cursor-pointer" key={index}>
-              <TableCell>Lorem Ipsum</TableCell>
-              <TableCell>mail@lorem.ipsum</TableCell>
-              <TableCell>12/ 04/ 2020</TableCell>
-              <TableCell>12/ 04/ 2020</TableCell>
+      <div className="w-full min-w-[600px] rounded-sm border md:w-3/5 md:border-0">
+        <Table className="h-full min-w-[600px] overflow-x-auto overflow-y-hidden  md:h-full md:w-full  md:overflow-y-auto ">
+          <TableCaption>A list of leaves</TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Start Date</TableHead>
+              <TableHead>End Date</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+
+          <TableBody>
+            {data &&
+              data.map((leave: ILeaveWithUser) => (
+                <TableRow
+                  onClick={() => setActiveLeave(leave)}
+                  key={leave.leaveId}
+                  className="hover:cursor-pointer"
+                >
+                  <TableCell>
+                    {leave.users.firstName + ' ' + leave.users.lastName}
+                  </TableCell>
+                  <TableCell>{leave.users.email}</TableCell>
+                  <TableCell>
+                    {format(new Date(leave.startDate), 'dd-L-yyyy')}
+                  </TableCell>
+                  <TableCell>
+                    {format(new Date(leave.startDate), 'dd-L-yyyy')}
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </div>
 
       {/* More Info */}
       <div className="hidden  h-full w-1/5 border-l p-3 md:flex md:flex-col">
         {/* Per leave stats */}
         <section className="flex w-full flex-col border-b p-3">
-          <h2 className="text-lg font-semibold ">Priviledge Leave</h2>
-          <span className="my-3">Total Leaves: 40</span>
+          <h2 className="text-lg font-semibold ">
+            {leaves.filter((leave) => leave.code == activeLeaveType)[0].name ??
+              'Casual Leave'}
+          </h2>
+          <span className="my-3">Total Leaves: {data?.length ?? 0}</span>
         </section>
         {/* User stats  */}
-        <section className="flex flex-col gap-3 p-3">
-          <span className="font-semibold ">Lorem Ipsum</span>
-          <span className="font-semibold ">mail@lorem.ipsum</span>
-          <span>Start Date: 12-23-2023</span>
-          <span>End Date: 12-03-2023</span>
-          <span>Total Days: 3</span>
-        </section>
+        {activeLeave && (
+          <section className="flex flex-col gap-3 p-3">
+            <span className="font-semibold ">
+              {activeLeave?.users.firstName + ' ' + activeLeave?.users.lastName}
+            </span>
+            <span className="font-semibold ">{activeLeave?.users.email}</span>
+            <span>
+              StartDate:{' '}
+              {format(new Date(activeLeave?.startDate!), 'dd-L-yyyy')}
+            </span>
+            <span>
+              End Date: {format(new Date(activeLeave?.endDate!), 'dd-L-yyyy')}
+            </span>
+          </section>
+        )}
       </div>
     </div>
   );
