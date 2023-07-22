@@ -1,6 +1,6 @@
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import React from 'react';
-import RequestLeave from './components/requestLeave';
+import RequestLeave from './components/requestLeaveSheet';
 import LeavesCard from './components/leavesCard';
 import RecentLeavesTable from './components/recentLeavesTable';
 
