@@ -60,7 +60,7 @@ export class AuthService {
 
   async checkAuth(authToken: string): Promise<IUser> {
     // Verify authToken
-    let payload: { userId: number; email: string };
+    let payload: { userId: number; email: string; version: number };
     try {
       payload = (await verify(authToken, this.configService.get('JWT_SECRET'), {
         audience: 'LMS-AUTH',
@@ -75,6 +75,11 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('Authentication failed');
     }
+
+    // Validate token version
+    if (payload.version !== user.jwtVersion)
+      throw new BadRequestException('Authentication failed');
+
     return user;
   }
 }

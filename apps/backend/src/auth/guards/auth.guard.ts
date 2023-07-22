@@ -12,7 +12,7 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
 
-    const authToken = request.cookies['aid'];
+    const authToken = request.headers.aid;
     if (!authToken) {
       throw new ForbiddenException('Authentication failed');
     }

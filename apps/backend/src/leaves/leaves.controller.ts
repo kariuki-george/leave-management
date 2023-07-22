@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { LeavesService } from './leaves.service';
 import { CreateLeaveDto } from './dtos/index.dtos';
-import { ILeave } from './models/index.models';
+import { ILeave, ILeaveWithUser } from './models/index.models';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('leaves')
@@ -20,12 +20,15 @@ export class LeavesController {
   @Post()
   @HttpCode(201)
   @UseGuards(AuthGuard)
-  createLeave(@Body() input: CreateLeaveDto, @Req() req): Promise<ILeave> {
+  createLeave(
+    @Body() input: CreateLeaveDto,
+    @Req() req
+  ): Promise<ILeaveWithUser> {
     return this.leavesService.createLeave(input, req.user);
   }
 
   @Get('/user')
-  @UseGuards()
+  @UseGuards(AuthGuard)
   getLeavesByUserId(@Query('userId') userId: string) {
     if (!Number(userId)) {
       throw new BadRequestException('Invalid userId query param');
@@ -34,12 +37,12 @@ export class LeavesController {
   }
 
   @Get('/recent')
-  @UseGuards()
+  @UseGuards(AuthGuard)
   getRecentLeaves() {
     return this.leavesService.getRecentLeaves();
   }
   @Get()
-  @UseGuards()
+  @UseGuards(AuthGuard)
   getLeaves(@Query('code') code: string) {
     if (!code) {
       throw new BadRequestException('LeaveTypeCode query param is missing');

@@ -1,0 +1,40 @@
+version: '3'
+
+networks:
+  pg-dev:
+    external: true
+  traefik:
+    external: true
+
+services:
+  lms-backend:
+    hostname: lms
+    image: lms:latest
+    restart: unless-stopped
+    networks:
+      - pg-dev
+      - traefik
+    env_file: ./apps/backend/.env.prod
+    ports:
+      - 54500:4000
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.lms.rule=Host(`lms.p.kariukigeorge.me`)
+      - traefik.http.routers.lms.tls=true
+      - traefik.http.routers.lms.tls.certresolver=lets-encrypt
+      - traefik.port=54500
+  lms-web:
+    hostname: lms-web
+    image: lms-web:latest
+    restart: unless-stopped
+    networks:
+      - traefik
+    env_file: ./apps/frontend/.env
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.lms-web.rule=Host(`lms-web.p.kariukigeorge.me`)
+      - traefik.http.routers.lms-web.tls=true
+      - traefik.http.routers.lms-web.tls.certresolver=lets-encrypt
+      - traefik.port=55560
+    ports:
+      - 55560:3000

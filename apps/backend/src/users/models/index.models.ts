@@ -4,4 +4,5 @@ export class IUser {
   firstName: string;
   lastName: string;
   leaveRemaining: number;
+  jwtVersion: number;
 }

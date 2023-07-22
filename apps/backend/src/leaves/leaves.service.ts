@@ -23,7 +23,7 @@ export class LeavesService {
   async createLeave(
     { code, endDate, startDate, totalDays }: CreateLeaveDto,
     user: IUser
-  ): Promise<ILeave> {
+  ): Promise<ILeaveWithUser> {
     endDate = this.setTime(endDate);
     startDate = this.setTime(startDate);
 
@@ -69,9 +69,11 @@ export class LeavesService {
       ]);
       await this.cacheService.del('leaves-code-' + code);
       await this.cacheService.del('leaves-user-' + user.userId);
+      await this.cacheService.del('leaves-recent');
       await this.usersService.invalidateCache(user.userId);
 
-      return leaveResponse[0];
+      user = this.usersService.cleanUser(leaveResponse[1]);
+      return { ...leaveResponse[0], users: user };
     } catch (error) {
       if (error.code === 'P2025') {
         throw new NotFoundException('LeaveType provided not found');
@@ -90,7 +92,7 @@ export class LeavesService {
       return leaves;
     }
     leaves = await this.dbService.leaves.findMany({
-      where: { userId, createdAt: { gte: currentWorkingYear } },
+      where: { userId, startDate: { gte: currentWorkingYear } },
       include: { leaveTypes: true },
     });
     await this.cacheService.set('leaves-user-' + userId, leaves);
@@ -107,7 +109,7 @@ export class LeavesService {
       return leaves;
     }
     leaves = await this.dbService.leaves.findMany({
-      where: { createdAt: { gte: currentWorkingYear }, leaveType: code },
+      where: { startDate: { gte: currentWorkingYear }, leaveType: code },
       include: {
         leaveTypes: true,
         users: {
@@ -131,7 +133,7 @@ export class LeavesService {
       return leaves;
     }
     leaves = await this.dbService.leaves.findMany({
-      where: { createdAt: { gte: currentWorkingYear } },
+      where: { startDate: { gte: currentWorkingYear } },
       include: {
         leaveTypes: true,
         users: {
@@ -143,6 +145,7 @@ export class LeavesService {
         },
       },
       take: 10,
+      orderBy: { createdAt: 'desc' },
     });
     await this.cacheService.set('leaves-recent', leaves);
     return leaves;

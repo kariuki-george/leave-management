@@ -28,7 +28,9 @@ export class UsersService {
     let user = await this.getUser(employeeId);
 
     if (!user) {
-      throw new NotFoundException('The provided employeeId not found');
+      throw new NotFoundException(
+        'The provided user not found, please check your details'
+      );
     }
 
     if (user.email) {
@@ -41,19 +43,24 @@ export class UsersService {
 
     // Update user with the new Details and initialize the number of days remaining
 
-    user = await this.dbService.users.update({
-      where: { userId: employeeId },
-      data: {
-        email,
-        password: hash,
-        jwtVersion: 0,
-        leaveLastUpdateDate: new Date(),
-        leaveRemaining: 30,
-      },
-    });
-    await this.invalidateCache(user.userId);
+    try {
+      user = await this.dbService.users.update({
+        where: { userId: employeeId },
+        data: {
+          email,
+          password: hash,
+          jwtVersion: 0,
+          leaveLastUpdateDate: new Date(),
+          leaveRemaining: 30,
+        },
+      });
+      await this.invalidateCache(user.userId);
 
-    return this.cleanUser(user as Users);
+      return this.cleanUser(user as Users);
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException('Something went wrong please try again');
+    }
   }
 
   async createUser({
@@ -100,19 +107,39 @@ export class UsersService {
       return this.cleanUser(user);
     }
 
-    user = await this.dbService.users.findUnique({ where: { userId } });
+    try {
+      user = await this.dbService.users.findUnique({ where: { userId } });
 
-    //   Method invoker should deal with the response approapriately
-    if (!user) return null;
-    await this.cacheService.set('user-' + userId, user);
+      //   Method invoker should deal with the response approapriately
+      if (!user) return null;
+      await this.cacheService.set('user-' + userId, user);
 
-    return this.cleanUser(user);
+      return this.cleanUser(user);
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException('Something went wrong please try again');
+    }
   }
 
-  // Private methods
+  async getUsers(): Promise<Partial<IUser>[]> {
+    let users: Partial<IUser>[] = await this.cacheService.get('users');
 
-  private cleanUser(user: Users): IUser {
-    delete user.jwtVersion;
+    if (users) return users;
+
+    users = await this.dbService.users.findMany({
+      select: {
+        firstName: true,
+        lastName: true,
+        userId: true,
+        leaveRemaining: true,
+      },
+    });
+
+    await this.cacheService.set('users', users);
+    return users;
+  }
+
+  cleanUser(user: Users): IUser {
     delete user.password;
     delete user.leaveLastUpdateDate;
     return user;
