@@ -7,6 +7,7 @@ import { LeavesModule } from './leaves/leaves.module';
 import { AuthModule } from './auth/auth.module';
 import { DBModule } from '@db';
 import { CacheModule } from '@nestjs/cache-manager';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -14,6 +15,10 @@ import { CacheModule } from '@nestjs/cache-manager';
     CacheModule.register({
       isGlobal: true,
       ttl: 1000 * 60 * 5, // Defaults to 5 min if no cache set
+    }),
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10,
     }),
     UsersModule,
     LeavesModule,
