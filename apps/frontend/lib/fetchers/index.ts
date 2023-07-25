@@ -13,21 +13,21 @@ if (!API) {
 // Common
 
 const postMutate = (url: string, data: any, config?: AxiosRequestConfig) => {
-  return axios.post(url, data, {
+  return axios.post(API + url, data, {
     ...config,
     headers: { aid: useAuthStore.getState().authToken },
   });
 };
 
 const query = (url: string, config?: AxiosRequestConfig) => {
-  return axios.get(url, {
+  return axios.get(API + url, {
     ...config,
     headers: { aid: useAuthStore.getState().authToken },
   });
 };
 
-const deleteMutation = (url: string, config?: AxiosRequestConfig) => {
-  return axios.delete(url, {
+const putMutation = (url: string, data: any, config?: AxiosRequestConfig) => {
+  return axios.put(API + url, data, {
     ...config,
     headers: { aid: useAuthStore.getState().authToken },
   });
@@ -43,33 +43,51 @@ export const login = (data: any) => {
 };
 
 export const logout = () => {
-  return postMutate(API + 'auth/logout', {});
+  return postMutate('auth/logout', {});
 };
 
 // Dashboard
 
 export const getRecentLeaves = () => {
-  return query(API + 'leaves/recent');
+  return query('leaves/recent');
 };
 
 export const addLeave = (data: any) => {
-  return postMutate(API + 'leaves', data);
+  return postMutate('leaves', data);
 };
 
 // Year
 
 export const getUsers = async (): Promise<IUser[]> => {
-  const { data } = await query(API + 'users');
+  const { data } = await query('users');
+  return data as IUser[];
+};
+
+// Admin
+export const getAllUsers = async (): Promise<IUser[]> => {
+  const { data } = await query('users/all');
   return data as IUser[];
 };
 
 export const getUserLeaves = (userId: string) => {
-  return query(API + 'leaves/user?userId=' + userId);
+  return query('leaves/user?userId=' + userId);
+};
+
+export const createUser = (data: any) => {
+  return postMutate('users', data);
+};
+
+export const updateUser = (data: any) => {
+  return putMutation('users', data);
+};
+
+export const adminUpdateUser = (data: any) => {
+  return putMutation('users/admin', data);
 };
 
 // Reports
 export const getLeaves = (code: string) => {
-  return query(API + 'leaves?code=' + code);
+  return query('leaves?code=' + code);
 };
 
 export const errorParser = (error: AxiosError) => {

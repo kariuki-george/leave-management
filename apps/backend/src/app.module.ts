@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { DBModule } from '@db';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { RolesModule } from './roles/roles.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     LeavesModule,
     AuthModule,
     DBModule,
+    RolesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,4 +1,11 @@
-import { IsEmail, IsInt, IsString, IsStrongPassword } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsStrongPassword,
+} from 'class-validator';
 
 export class AssignUserDto {
   @IsEmail()
@@ -16,4 +23,18 @@ export class CreateUserDto {
   firstName: string;
   @IsString()
   lastName: string;
+  @IsBoolean()
+  @IsOptional()
+  isAdmin?: boolean;
+}
+
+export class AdminUpdateUserDto {
+  @IsInt()
+  userId: number;
+  @IsBoolean()
+  @IsOptional()
+  disabled: boolean;
+  @IsBoolean()
+  @IsOptional()
+  isAdmin: boolean;
 }

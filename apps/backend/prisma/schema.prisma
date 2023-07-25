@@ -39,4 +39,6 @@ model Users {
   leaveLastUpdateDate DateTime? @db.Date
   jwtVersion          Int?      
   leaves              Leaves[]
+  isAdmin            Boolean @default(false)
+  disabled           Boolean @default(false)
 }

@@ -5,4 +5,6 @@ export interface IUser {
   lastName: string;
   leaveRemaining: number;
   jwtVersion: number;
+  disabled?: boolean;
+  isAdmin?: boolean;
 }

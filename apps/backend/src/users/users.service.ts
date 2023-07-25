@@ -66,11 +66,12 @@ export class UsersService {
   async createUser({
     employeeId,
     firstName,
+    isAdmin,
     lastName,
   }: CreateUserDto): Promise<IUser> {
     try {
       const user = await this.dbService.users.create({
-        data: { userId: employeeId, firstName, lastName },
+        data: { userId: employeeId, firstName, lastName, isAdmin },
       });
 
       return this.cleanUser(user);
@@ -108,10 +109,13 @@ export class UsersService {
     }
 
     try {
-      user = await this.dbService.users.findUnique({ where: { userId } });
+      user = await this.dbService.users.findUnique({
+        where: { userId, disabled: false },
+      });
 
       //   Method invoker should deal with the response approapriately
       if (!user) return null;
+      // If a user is disabled, It's the same as if the user is deleted.
       await this.cacheService.set('user-' + userId, user);
 
       return this.cleanUser(user);
@@ -132,11 +136,31 @@ export class UsersService {
         lastName: true,
         userId: true,
         leaveRemaining: true,
+        email: true,
       },
+      where: { disabled: false },
     });
 
     await this.cacheService.set('users', users);
     return users;
+  }
+
+  // Prevent admin from updating themselves - remove their admin status etc
+
+  async getAllUsers(userId: number): Promise<Partial<IUser>[]> {
+    return (
+      await this.dbService.users.findMany({
+        select: {
+          firstName: true,
+          lastName: true,
+          userId: true,
+          leaveRemaining: true,
+          email: true,
+          disabled: true,
+          isAdmin: true,
+        },
+      })
+    ).filter((user) => user.userId != userId);
   }
 
   cleanUser(user: Users): IUser {

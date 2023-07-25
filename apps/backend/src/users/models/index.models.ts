@@ -5,4 +5,6 @@ export class IUser {
   lastName: string;
   leaveRemaining: number;
   jwtVersion: number;
+  isAdmin: boolean;
+  disabled: boolean;
 }

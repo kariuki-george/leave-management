@@ -13,9 +13,11 @@ export const siteConfig = {
     auth: {
       login: '/auth/login',
       register: '/auth/getstarted',
+      forgotPass: '/auth/forgotpass',
     },
     year: '/year',
     dashboard: '/',
     reports: '/reports',
+    admin: '/admin',
   },
 };

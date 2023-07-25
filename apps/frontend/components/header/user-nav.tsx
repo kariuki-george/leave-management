@@ -87,11 +87,15 @@ export function UserNav() {
             </DropdownMenuItem>
           </Link>
 
-          <DropdownMenuItem>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
-            {/* <DropdownMenuShortcut>⌘S</DropdownMenuShortcut> */}
-          </DropdownMenuItem>
+          {state?.user?.isAdmin && (
+            <Link href={siteConfig.nav.admin}>
+              <DropdownMenuItem>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Admin</span>
+                {/* <DropdownMenuShortcut>⌘S</DropdownMenuShortcut> */}
+              </DropdownMenuItem>
+            </Link>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <button

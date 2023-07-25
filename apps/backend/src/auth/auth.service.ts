@@ -24,10 +24,12 @@ export class AuthService {
     password,
   }: LoginDto): Promise<{ user: IUser; authToken: string }> {
     // Get user
-    const user = await this.dbService.users.findUnique({ where: { email } });
+    const user = await this.dbService.users.findUnique({
+      where: { email, disabled: false },
+    });
     if (!user) {
       throw new NotFoundException(
-        'User with the provided details does not exist'
+        'User with the provided details does not exist or has been blocked'
       );
     }
     // Validate pass
@@ -78,7 +80,11 @@ export class AuthService {
 
     // Get User
     const user = await this.usersService.getUser(payload.userId);
+
     if (!user) {
+      throw new BadRequestException('Authentication failed');
+    }
+    if (user.disabled) {
       throw new BadRequestException('Authentication failed');
     }
 
