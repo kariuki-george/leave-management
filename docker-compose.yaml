@@ -14,7 +14,7 @@ services:
     networks:
       - pg-dev
       - traefik
-    env_file: ./apps/backend/.env.prod
+    env_file: ./apps/backend/.env.production.local
     ports:
       - 54500:4000
     labels:

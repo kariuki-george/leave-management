@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { ILeave, ILeaveWithUser } from './models/index.models';
@@ -11,15 +12,14 @@ import { IUser } from 'src/users/models/index.models';
 import { UsersService } from 'src/users/users.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { MailService } from 'src/mails/mail.service';
 
 @Injectable()
 export class LeavesService {
+  private readonly logger = new Logger(LeavesService.name);
   constructor(
     private readonly dbService: PrismaService,
     private readonly usersService: UsersService,
-    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
-    private mailService: MailService
+    @Inject(CACHE_MANAGER) private readonly cacheService: Cache
   ) {}
 
   async createLeave(
@@ -80,7 +80,8 @@ export class LeavesService {
       if (error.code === 'P2025') {
         throw new NotFoundException('LeaveType provided not found');
       }
-      throw new BadRequestException('An error occurred, try again');
+      this.logger.error(error);
+      throw new BadRequestException('Something went wrong please try again');
     }
   }
 

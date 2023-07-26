@@ -1,9 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import handlebars from 'handlebars';
 import * as path from 'path';
 import * as fs from 'fs';
-import pRetry from 'p-retry';
 /* eslint-disable @typescript-eslint/no-var-requires */
 const nodemailer = require('nodemailer');
 
@@ -22,6 +21,7 @@ type ITemplate = { to: string; [key: string]: any };
 export class MailService {
   private MAIL_FROM: string;
   private LMS_HOST: string;
+  private readonly logger = new Logger(MailService.name);
 
   constructor(private readonly configService: ConfigService) {
     this.LMS_HOST = configService.getOrThrow('ORIGIN_URL');
@@ -48,15 +48,21 @@ export class MailService {
     };
 
     try {
-      const info = await pRetry(
-        async () => await transporter.sendMail(message),
-
-        {
-          retries: 3,
+      // Will retry sending 3 times
+      const retrySending = async (retry = 3, error?: any) => {
+        if (retry == 0) {
+          throw new Error(error);
         }
-      );
+        console.log(retry);
+        try {
+          return await transporter.sendMail(message);
+        } catch (error) {
+          await retrySending((retry -= 1), error);
+        }
+      };
+      return await retrySending();
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
       throw new BadRequestException(
         'Failed to send an email, please try again later'
       );

@@ -1,5 +1,10 @@
 import { PrismaService } from '@db';
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { CreateLeaveTypeDto } from './dtos/index.dtos';
 import { ILeaveType } from './models/index.models';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -7,6 +12,7 @@ import { Cache } from 'cache-manager';
 
 @Injectable()
 export class LeaveTypesService {
+  private readonly logger = new Logger(LeaveTypesService.name);
   constructor(
     private readonly dbService: PrismaService,
     @Inject(CACHE_MANAGER) private readonly cacheService: Cache
@@ -23,7 +29,8 @@ export class LeaveTypesService {
           'Leave Type with the provided code already exists'
         );
       }
-      throw new BadRequestException('Something went wrong, please try again');
+      this.logger.error(error);
+      throw new BadRequestException('Something went wrong please try again');
     }
   }
 

@@ -24,7 +24,11 @@ import { LoggerModule } from 'nestjs-pino';
       limit: 10,
     }),
     MailModule,
-    LoggerModule.forRoot(),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport: { target: 'pino-pretty', options: { singleLine: true } },
+      },
+    }),
     UsersModule,
     LeavesModule,
     AuthModule,

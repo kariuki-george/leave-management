@@ -11,7 +11,6 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
-    // "skipLibCheck": true,
     "strictNullChecks": false,
     "noImplicitAny": false,
     "strictBindCallApply": false,
@@ -19,7 +18,9 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@db": ["libs/prisma/src"],
-      "@db/*": ["libs/prisma/src/*"]
+      "@db/*": ["libs/prisma/src/*"],
+      "@shared": ["libs/shared/src"],
+      "@shared/*": ["libs/shared/src/*"]
     }
   }
 }

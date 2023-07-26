@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { AssignUserDto, CreateUserDto } from './dtos/index.dtos';
@@ -11,14 +12,13 @@ import * as argon from 'argon2';
 import { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Users } from '@prisma/client';
-import { MailService } from 'src/mails/mail.service';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
   constructor(
     private readonly dbService: PrismaService,
-    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
-    private readonly mailService: MailService
+    @Inject(CACHE_MANAGER) private readonly cacheService: Cache
   ) {}
 
   async assignUser({
@@ -60,7 +60,7 @@ export class UsersService {
 
       return this.cleanUser(user as Users);
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
       throw new BadRequestException('Something went wrong please try again');
     }
   }
@@ -84,6 +84,7 @@ export class UsersService {
           'User with the provided info already exists'
         );
       }
+      this.logger.error(error);
       throw new BadRequestException('Something went wrong please try again');
     }
   }
@@ -122,7 +123,7 @@ export class UsersService {
 
       return this.cleanUser(user);
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
       throw new BadRequestException('Something went wrong please try again');
     }
   }

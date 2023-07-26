@@ -14,6 +14,8 @@
     "drizzle/drizzle/(.*)": "<rootDir>/../libs/drizzle/src/$1",
     "drizzle/drizzle": "<rootDir>/../libs/drizzle/src",
     "@db/prisma/(.*)": "<rootDir>/../libs/prisma/src/$1",
-    "@db/prisma": "<rootDir>/../libs/prisma/src"
+    "@db/prisma": "<rootDir>/../libs/prisma/src",
+    "@shared/@shared/(.*)": "<rootDir>/../libs/@shared/src/$1",
+    "@shared/@shared": "<rootDir>/../libs/@shared/src"
   }
 }
