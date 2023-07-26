@@ -5,18 +5,20 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { IUser } from 'src/users/models/index.models';
-import { LoginDto } from './dtos/index.dtos';
+import { ChangePasswordDto, LoginDto } from './dtos/index.dtos';
 import * as argon from 'argon2';
 import { sign, verify } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
+import { MailService } from 'src/mails/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly dbService: PrismaService,
     private readonly configService: ConfigService,
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
+    private readonly mailService: MailService
   ) {}
 
   async login({
@@ -102,5 +104,66 @@ export class AuthService {
 
   logout(userId: number) {
     return this.usersService.updateUser(userId, { jwtVersion: 0 });
+  }
+
+  async changePassword({ password, token }: ChangePasswordDto) {
+    let payload: {
+      userId: number;
+      expires: number;
+    };
+    try {
+      payload = (await verify(token, this.configService.get('JWT_SECRET'), {
+        audience: 'LMS-AUTH-PASSRESET',
+        issuer: 'LMS',
+      })) as typeof payload;
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException(
+        'Password reset failed, please retry the entire process'
+      );
+    }
+
+    // Validate token expiry date
+    if (payload.expires < Date.now()) {
+      throw new BadRequestException('Authentication failed');
+    }
+
+    const newPass = await argon.hash(password);
+    let user;
+    try {
+      user = await this.usersService.updateUser(payload.userId, {
+        password: newPass,
+      });
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException('Something went wrong, please try again');
+    }
+
+    return user;
+  }
+  async requestPasswordChange(email: string): Promise<boolean> {
+    const user = await this.dbService.users.findUnique({
+      where: { email, disabled: false },
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        'User with the provided email not found or is blocked'
+      );
+    }
+
+    const token = sign(
+      {
+        userId: user.userId,
+        expires: Date.now() + 1000 * 60 * 30, // Expires in 30 minutes
+      },
+      this.configService.get('JWT_SECRET'),
+      { audience: 'LMS-AUTH-PASSRESET', issuer: 'LMS' }
+    );
+
+    // Send mail
+    await this.mailService.sendPasswordResetEmail(email, token, user.firstName);
+
+    return true;
   }
 }

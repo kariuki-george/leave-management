@@ -1,14 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/state/auth.state';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
 import * as z from 'zod';
 
 import { siteConfig } from '@/config/site';
-import { login } from '@/lib/fetchers';
+import { forgotPassRequest } from '@/lib/fetchers';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -23,24 +22,18 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
 
 export const ForgotPassForm = () => {
-  // Login Functionality
-  const router = useRouter();
-  const { setUser, setAuthToken } = useAuthStore();
-  const { mutate } = useMutation({
-    mutationFn: login,
-    onSuccess: ({ data }) => {
-      setUser(data.user);
-      setAuthToken(data.authToken);
+  const { mutate, isLoading } = useMutation({
+    mutationFn: forgotPassRequest,
+    onSuccess: () => {
       toast({
-        title: 'Successfully logged in',
-        description: `Hi ${data?.user?.firstName}, welcome back🎉`,
+        title:
+          'An email with change password instructions has been sent, please check your mail',
       });
-      router.replace(siteConfig.nav.dashboard);
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    mutate(values);
+    mutate(values.email);
   }
 
   // Define form and validation
@@ -77,7 +70,7 @@ export const ForgotPassForm = () => {
           )}
         />
 
-        <Button className="w-full" type="submit">
+        <Button isLoading={isLoading} className="w-full" type="submit">
           Submit
         </Button>
       </form>

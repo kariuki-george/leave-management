@@ -9,6 +9,8 @@ import { DBModule } from '@db';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { RolesModule } from './roles/roles.module';
+import { MailModule } from './mails/mail.module';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { RolesModule } from './roles/roles.module';
       ttl: 60,
       limit: 10,
     }),
+    MailModule,
+    LoggerModule.forRoot(),
     UsersModule,
     LeavesModule,
     AuthModule,

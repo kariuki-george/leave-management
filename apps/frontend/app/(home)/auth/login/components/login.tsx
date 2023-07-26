@@ -26,7 +26,7 @@ export const LoginForm = () => {
   // Login Functionality
   const router = useRouter();
   const { setUser, setAuthToken } = useAuthStore();
-  const { mutate } = useMutation({
+  const { mutate, isLoading } = useMutation({
     mutationFn: login,
     onSuccess: ({ data }) => {
       setUser(data.user);
@@ -99,7 +99,7 @@ export const LoginForm = () => {
           )}
         />
 
-        <Button className="w-full" type="submit">
+        <Button isLoading={isLoading} className="w-full" type="submit">
           Submit
         </Button>
       </form>

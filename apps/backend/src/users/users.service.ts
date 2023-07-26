@@ -11,12 +11,14 @@ import * as argon from 'argon2';
 import { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Users } from '@prisma/client';
+import { MailService } from 'src/mails/mail.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly dbService: PrismaService,
-    @Inject(CACHE_MANAGER) private readonly cacheService: Cache
+    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
+    private readonly mailService: MailService
   ) {}
 
   async assignUser({

@@ -8,7 +8,7 @@ import { useMutation } from 'react-query';
 import * as z from 'zod';
 
 import { siteConfig } from '@/config/site';
-import { login } from '@/lib/fetchers';
+import { changePassword, login } from '@/lib/fetchers';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -27,19 +27,14 @@ interface Props {
 }
 
 export const ChangePassForm = ({ token }: Props) => {
-  // Login Functionality
   const router = useRouter();
-  const { setUser, setAuthToken } = useAuthStore();
-  const { mutate } = useMutation({
-    mutationFn: login,
-    onSuccess: ({ data }) => {
-      setUser(data.user);
-      setAuthToken(data.authToken);
+  const { mutate, isLoading } = useMutation({
+    mutationFn: changePassword,
+    onSuccess: () => {
       toast({
-        title: 'Successfully logged in',
-        description: `Hi ${data?.user?.firstName}, welcome back🎉`,
+        title: 'Password has been reset successfully',
       });
-      router.replace(siteConfig.nav.dashboard);
+      router.replace(siteConfig.nav.auth.login);
     },
   });
 
@@ -51,14 +46,13 @@ export const ChangePassForm = ({ token }: Props) => {
       });
       return;
     }
-    mutate(values);
+    mutate({ password: values.password, token });
   }
 
   // Define form and validation
 
   const formSchema = z.object({
     password: z.string().min(8),
-
     confirmPassword: z.string().min(8),
   });
 
@@ -115,7 +109,7 @@ export const ChangePassForm = ({ token }: Props) => {
           )}
         />
 
-        <Button className="w-full" type="submit">
+        <Button isLoading={isLoading} className="w-full" type="submit">
           Submit
         </Button>
       </form>

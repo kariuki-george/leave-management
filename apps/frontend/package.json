@@ -1,6 +1,6 @@
 {
-  "name": "leave-management",
-  "version": "0.0.2",
+  "name": "frontend",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev",

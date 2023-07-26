@@ -11,13 +11,15 @@ import { IUser } from 'src/users/models/index.models';
 import { UsersService } from 'src/users/users.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { MailService } from 'src/mails/mail.service';
 
 @Injectable()
 export class LeavesService {
   constructor(
     private readonly dbService: PrismaService,
     private readonly usersService: UsersService,
-    @Inject(CACHE_MANAGER) private readonly cacheService: Cache
+    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
+    private mailService: MailService
   ) {}
 
   async createLeave(
@@ -126,6 +128,12 @@ export class LeavesService {
   }
 
   async getRecentLeaves(): Promise<ILeaveWithUser[]> {
+    try {
+      // await this.mailService.sendUserConfirmation();
+    } catch (error) {
+      console.log(error);
+    }
+
     const currentWorkingYear = this.getCurrentLeaveYear();
 
     let leaves: ILeaveWithUser[] = await this.cacheService.get('leaves-recent');

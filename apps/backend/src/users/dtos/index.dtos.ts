@@ -4,13 +4,12 @@ import {
   IsInt,
   IsOptional,
   IsString,
-  IsStrongPassword,
 } from 'class-validator';
 
 export class AssignUserDto {
   @IsEmail()
   email: string;
-  @IsStrongPassword({ minLength: 8 })
+  @IsString()
   password: string;
   @IsInt()
   employeeId: number;

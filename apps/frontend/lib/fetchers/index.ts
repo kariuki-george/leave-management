@@ -46,6 +46,14 @@ export const logout = () => {
   return postMutate('auth/logout', {});
 };
 
+export const forgotPassRequest = (email: string) => {
+  return axios.post(API + 'auth/request-pass-change', { email });
+};
+
+export const changePassword = (data: any) => {
+  return axios.post(API + 'auth/change-pass', data);
+};
+
 // Dashboard
 
 export const getRecentLeaves = () => {

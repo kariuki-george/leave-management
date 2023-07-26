@@ -1,7 +1,12 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
-import { LoginDto } from './dtos/index.dtos';
+import {
+  ChangePasswordDto,
+  LoginDto,
+  RequestPasswordChangeDto,
+} from './dtos/index.dtos';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './guards/auth.guard';
+import { IUser } from 'src/users/models/index.models';
 
 @Controller('auth')
 export class AuthController {
@@ -14,6 +19,18 @@ export class AuthController {
   @Post('/logout')
   @UseGuards(AuthGuard)
   async logout(@Req() req) {
-    return this.authService.logout(req.user.userId);
+    await this.authService.logout(req.user.userId);
+    return true;
+  }
+  @Post('/request-pass-change')
+  requestPasswordChange(
+    @Body() input: RequestPasswordChangeDto
+  ): Promise<boolean> {
+    return this.authService.requestPasswordChange(input.email);
+  }
+
+  @Post('/change-pass')
+  changePassword(@Body() input: ChangePasswordDto): Promise<IUser> {
+    return this.authService.changePassword(input);
   }
 }
