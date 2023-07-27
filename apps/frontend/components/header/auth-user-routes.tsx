@@ -7,14 +7,13 @@ import { siteConfig } from '@/config/site';
 import { cn } from '@/lib/utils';
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { useAuthStore } from '@/state/auth.state';
+import useStore from '@/state/useStore';
 
 interface NavProps {
   title: string;
@@ -23,7 +22,7 @@ interface NavProps {
 }
 
 const AuthenticatedRoutes = () => {
-  const user = useAuthStore((state) => state.user);
+  const user = useStore(useAuthStore, (state) => state.user);
 
   return (
     <NavigationMenu>
