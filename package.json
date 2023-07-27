@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "A leave management system",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently 'pnpm --filter frontend dev' 'pnpm --filter backend start:dev'"
   },
   "keywords": [],
   "author": "Kariuki George Thuo",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
 }
