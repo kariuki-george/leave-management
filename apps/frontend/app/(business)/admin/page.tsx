@@ -2,10 +2,16 @@
 
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import React from 'react';
-import NewUser from './components/newUserSheet';
 import UsersTable from './components/usersTable';
 import { useQuery } from 'react-query';
 import { getAllUsers } from '@/lib/fetchers';
+import dynamic from 'next/dynamic';
+import { Icons } from '@/components/icons';
+
+const NewUser = dynamic(() => import('./components/newUserSheet'), {
+  ssr: false,
+  loading: () => <Icons.spinner />,
+});
 
 const Admin = () => {
   const { data } = useQuery({
