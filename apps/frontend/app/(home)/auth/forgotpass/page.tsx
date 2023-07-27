@@ -2,7 +2,7 @@ import React from 'react';
 
 import { ForgotPassForm } from './components/form';
 
-const Login = () => {
+const ForgotPassword = () => {
   return (
     <div className="flex h-full flex-col items-center justify-center p-2">
       <section className="flex w-full  flex-col items-center justify-between gap-3 pt-10">
@@ -17,4 +17,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;
