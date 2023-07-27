@@ -14,6 +14,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
+import { useAuthStore } from '@/state/auth.state';
 
 interface NavProps {
   title: string;
@@ -22,6 +23,8 @@ interface NavProps {
 }
 
 const AuthenticatedRoutes = () => {
+  const user = useAuthStore((state) => state.user);
+
   return (
     <NavigationMenu>
       <NavigationMenuList>
@@ -46,6 +49,15 @@ const AuthenticatedRoutes = () => {
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
+        {user?.isAdmin && (
+          <NavigationMenuItem>
+            <Link href={siteConfig.nav.admin} legacyBehavior passHref>
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                Admin
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+        )}
       </NavigationMenuList>
     </NavigationMenu>
   );
@@ -61,13 +73,13 @@ const ListItem = React.forwardRef<
         <a
           ref={ref}
           className={cn(
-            'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+            'hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
             className
           )}
           {...props}
         >
           <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+          <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
             {children}
           </p>
         </a>
