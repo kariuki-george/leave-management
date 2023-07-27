@@ -2,6 +2,7 @@ import { PrismaService } from '@db';
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { IUser } from 'src/users/models/index.models';
@@ -11,14 +12,17 @@ import { sign, verify } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
 import { MailService } from 'src/mails/mail.service';
+import { LeavesService } from 'src/leaves/leaves.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   constructor(
     private readonly dbService: PrismaService,
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
-    private readonly mailService: MailService
+    private readonly mailService: MailService,
+    private readonly leavesService: LeavesService
   ) {}
 
   async login({
@@ -41,11 +45,22 @@ export class AuthService {
       throw new BadRequestException('Wrong email or password provided');
     }
 
-    // Create tokens
+    // Check renewable leave days
+    const leaveDays = this.leavesService.renewLeaveDays(user);
+    let updatedUser: IUser;
+    if (leaveDays) {
+      updatedUser = await this.usersService.updateUser(user.userId, {
+        jwtVersion: user.jwtVersion + 1,
+        leaveRemaining: leaveDays,
+        leaveLastUpdateDate: new Date(),
+      });
+    } else {
+      updatedUser = await this.usersService.updateUser(user.userId, {
+        jwtVersion: user.jwtVersion + 1,
+      });
+    }
 
-    const updatedUser = await this.usersService.updateUser(user.userId, {
-      jwtVersion: user.jwtVersion + 1,
-    });
+    // Create tokens
 
     const authToken = sign(
       {
@@ -117,7 +132,7 @@ export class AuthService {
         issuer: 'LMS',
       })) as typeof payload;
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
       throw new BadRequestException(
         'Password reset failed, please retry the entire process'
       );
@@ -135,7 +150,7 @@ export class AuthService {
         password: newPass,
       });
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
       throw new BadRequestException('Something went wrong, please try again');
     }
 

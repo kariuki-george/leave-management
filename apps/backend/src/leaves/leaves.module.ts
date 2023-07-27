@@ -9,5 +9,6 @@ import { UsersModule } from 'src/users/users.module';
   providers: [LeaveTypesService, LeavesService],
   imports: [UsersModule],
   controllers: [LeaveTypesController, LeavesController],
+  exports: [LeavesService],
 })
 export class LeavesModule {}

@@ -12,6 +12,7 @@ import { IUser } from 'src/users/models/index.models';
 import { UsersService } from 'src/users/users.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { Users } from '@prisma/client';
 
 @Injectable()
 export class LeavesService {
@@ -129,12 +130,6 @@ export class LeavesService {
   }
 
   async getRecentLeaves(): Promise<ILeaveWithUser[]> {
-    try {
-      // await this.mailService.sendUserConfirmation();
-    } catch (error) {
-      console.log(error);
-    }
-
     const currentWorkingYear = this.getCurrentLeaveYear();
 
     let leaves: ILeaveWithUser[] = await this.cacheService.get('leaves-recent');
@@ -158,6 +153,20 @@ export class LeavesService {
     });
     await this.cacheService.set('leaves-recent', leaves);
     return leaves;
+  }
+
+  renewLeaveDays(user: Users): number {
+    // Renew leave days on every new financial year
+    // A user is entitled to 30 leave days
+    // A user can also have 15 days roll over from the previous year
+
+    // Check the last time the user got a leave
+    if (user.leaveLastUpdateDate >= this.getCurrentLeaveYear()) {
+      // User has already taken a leave in the current year
+      return 0;
+    }
+
+    return user.leaveRemaining > 15 ? 45 : user.leaveRemaining + 30;
   }
 
   // TODO: BEWARE OF SERVER TIME

@@ -36,7 +36,7 @@ model Users {
     createdAt DateTime  @default(now())
     updatedAt DateTime  @updatedAt() @default(now())
   leaveRemaining      Int?      @db.SmallInt
-  leaveLastUpdateDate DateTime? @db.Date
+  leaveLastUpdateDate DateTime? @db.Date @default(now())
   jwtVersion          Int?      
   leaves              Leaves[]
   isAdmin            Boolean @default(false)

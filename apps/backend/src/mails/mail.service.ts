@@ -53,7 +53,6 @@ export class MailService {
         if (retry == 0) {
           throw new Error(error);
         }
-        console.log(retry);
         try {
           return await transporter.sendMail(message);
         } catch (error) {
