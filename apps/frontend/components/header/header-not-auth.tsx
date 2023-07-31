@@ -6,7 +6,7 @@ import { ThemeToggle } from '../theme-toggle';
 
 const Header = () => {
   return (
-    <header className="h-30 bg-background sticky top-0 z-40 flex w-full justify-between border-b px-10 py-3">
+    <header className="h-30 sticky top-0 z-40 flex w-full justify-between border-b bg-background px-10 py-3">
       {/* Organisation */}
       <span>
         <Link href={siteConfig.nav.landing}>

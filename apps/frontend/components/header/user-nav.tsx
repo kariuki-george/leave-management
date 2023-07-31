@@ -62,7 +62,7 @@ export function UserNav() {
             <p className="text-sm font-medium leading-none">
               {state?.user?.firstName}
             </p>
-            <p className="text-muted-foreground text-xs leading-none">
+            <p className="text-xs leading-none text-muted-foreground">
               {state?.user?.email}
             </p>
           </div>

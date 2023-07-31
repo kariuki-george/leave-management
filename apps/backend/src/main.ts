@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import { CustomExceptionFilter } from '@shared';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -15,7 +16,10 @@ async function bootstrap() {
   const configService = app.get<ConfigService>(ConfigService);
   app.enableCors({
     origin: configService.getOrThrow<string>('ORIGIN_URL'),
+    credentials: true,
   });
+  app.use(cookieParser());
+
   await app.listen(configService.getOrThrow<number>('PORT'));
   console.log('Server started at ' + (await app.getUrl()));
 }

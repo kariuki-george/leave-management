@@ -10,7 +10,7 @@ import { UserNav } from './user-nav';
 
 const Header = () => {
   return (
-    <header className="h-30 bg-background sticky top-0 z-40 flex w-full items-center justify-between border-b px-10 py-3">
+    <header className="h-30 sticky top-0 z-40 flex w-full items-center justify-between border-b bg-background px-10 py-3">
       {/* Organisation */}
       <Link href={siteConfig.nav.dashboard}>
         <span className="text-xl  font-semibold">{siteConfig.name}</span>

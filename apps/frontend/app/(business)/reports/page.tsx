@@ -41,7 +41,7 @@ const Page = () => {
               setActiveLeave(undefined);
               setActiveLeaveType(code);
             }}
-            className="hover:bg-accent flex   items-center justify-between rounded-sm  p-3 hover:cursor-pointer hover:font-semibold"
+            className="flex items-center   justify-between rounded-sm p-3  hover:cursor-pointer hover:bg-accent hover:font-semibold"
           >
             <span className="flex items-center gap-2 font-semibold">
               <span

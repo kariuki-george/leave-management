@@ -16,8 +16,9 @@ export const siteConfig = {
       forgotPass: '/auth/forgotpass',
     },
     year: '/year',
-    dashboard: '/',
+    dashboard: '/dashboard',
     reports: '/reports',
     admin: '/admin',
+    home: '/',
   },
 };

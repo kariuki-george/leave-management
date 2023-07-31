@@ -5,6 +5,7 @@ import { toast } from '@/components/ui/use-toast';
 import { IUser } from '../types/user';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
+const isDev = process.env.NODE_ENV === 'development';
 
 if (!API) {
   throw new Error('Api Url is not defined');
@@ -13,23 +14,41 @@ if (!API) {
 // Common
 
 const postMutate = (url: string, data: any, config?: AxiosRequestConfig) => {
+  if (isDev)
+    return axios.post(API + url, data, {
+      ...config,
+      headers: { aid: useAuthStore.getState().authToken },
+    });
+
   return axios.post(API + url, data, {
     ...config,
-    headers: { aid: useAuthStore.getState().authToken },
+    withCredentials: true,
   });
 };
 
 const query = (url: string, config?: AxiosRequestConfig) => {
+  if (isDev)
+    return axios.get(API + url, {
+      ...config,
+      headers: { aid: useAuthStore.getState().authToken },
+    });
+
   return axios.get(API + url, {
     ...config,
-    headers: { aid: useAuthStore.getState().authToken },
+    withCredentials: true,
   });
 };
 
 const putMutation = (url: string, data: any, config?: AxiosRequestConfig) => {
+  if (isDev)
+    return axios.put(API + url, data, {
+      ...config,
+      headers: { aid: useAuthStore.getState().authToken },
+    });
+
   return axios.put(API + url, data, {
     ...config,
-    headers: { aid: useAuthStore.getState().authToken },
+    withCredentials: true,
   });
 };
 // Auth
@@ -38,8 +57,8 @@ export const assignUser = (user: any) => {
   return axios.post(API + 'users/assign', user);
 };
 
-export const login = (data: any) => {
-  return axios.post(API + 'auth/login', data);
+export const login = async (data: any) => {
+  return axios.post(API + 'auth/login', data, { withCredentials: true });
 };
 
 export const logout = () => {
@@ -52,6 +71,15 @@ export const forgotPassRequest = (email: string) => {
 
 export const changePassword = (data: any) => {
   return axios.post(API + 'auth/change-pass', data);
+};
+
+export const getMe = async () => {
+  try {
+    const res = await query('users/me');
+    return res.data;
+  } catch (error: any) {
+    errorParser(error);
+  }
 };
 
 // Dashboard

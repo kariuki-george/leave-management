@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import {
   ChangePasswordDto,
   LoginDto,
@@ -7,13 +7,31 @@ import {
 import { AuthService } from './auth.service';
 import { AuthGuard } from './guards/auth.guard';
 import { IUser } from 'src/users/models/index.models';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService
+  ) {}
   @Post('/login')
-  async login(@Body() input: LoginDto) {
-    return this.authService.login(input);
+  async login(@Body() input: LoginDto, @Res({ passthrough: true }) res) {
+    const { authToken, user } = await this.authService.login(input);
+    if (this.configService.get('NODE_ENV') === 'development') {
+      return { user, authToken };
+    }
+    // Set cookie
+    res.cookie('aid', authToken, {
+      sameSite: 'lax',
+      secure: true,
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24, //1 day
+      domain: '.p.kariukigeorge.me',
+      priority: 'high',
+    });
+
+    return user;
   }
 
   @Post('/logout')

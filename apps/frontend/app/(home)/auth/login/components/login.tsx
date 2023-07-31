@@ -29,12 +29,21 @@ export const LoginForm = () => {
   const { mutate, isLoading } = useMutation({
     mutationFn: login,
     onSuccess: ({ data }) => {
-      setUser(data.user);
-      setAuthToken(data.authToken);
-      toast({
-        title: 'Successfully logged in',
-        description: `Hi ${data?.user?.firstName}, welcome back🎉`,
-      });
+      if (process.env.NODE_ENV === 'development') {
+        setUser(data.user);
+        setAuthToken(data.authToken);
+        toast({
+          title: 'Successfully logged in',
+          description: `Hi ${data?.user?.firstName}, welcome back🎉`,
+        });
+      } else {
+        setUser(data);
+        toast({
+          title: 'Successfully logged in',
+          description: `Hi ${data?.firstName}, welcome back🎉`,
+        });
+      }
+
       router.replace(siteConfig.nav.dashboard);
     },
   });

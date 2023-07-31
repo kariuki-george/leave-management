@@ -3,8 +3,6 @@ import {
   Controller,
   Get,
   HttpCode,
-  HttpException,
-  HttpStatus,
   Post,
   Put,
   Req,
@@ -56,5 +54,11 @@ export class UsersController {
       ...input,
       isAdmin: input.disabled ? false : input.isAdmin,
     });
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard)
+  getMe(@Req() req) {
+    return req.user;
   }
 }

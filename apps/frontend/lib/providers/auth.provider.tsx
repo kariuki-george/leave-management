@@ -19,7 +19,7 @@ const AuthProvider = ({ children }: IProps) => {
 
   useEffect(() => {
     if (!user) {
-      router.push(siteConfig.nav.landing);
+      router.push(siteConfig.nav.home + '?redirect=' + location.pathname);
     }
   }, [user, router]);
 
