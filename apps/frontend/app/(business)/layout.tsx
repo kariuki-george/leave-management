@@ -8,7 +8,7 @@ interface RootLayoutProps {
 export default function BusinessLayout({ children }: RootLayoutProps) {
   return (
     <AuthProvider>
-      <div className="flex h-screen w-full flex-col">
+      <div className="flex h-fit min-h-screen w-full flex-col">
         <Header />
         <div className="h-full overflow-hidden"> {children}</div>
       </div>
