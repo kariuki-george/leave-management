@@ -21,7 +21,7 @@ const AuthProvider = ({ children }: IProps) => {
     if (!user) {
       router.push(siteConfig.nav.home + '?redirect=' + location.pathname);
     }
-  }, [user, router]);
+  }, []);
 
   return <>{children}</>;
 };

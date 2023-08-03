@@ -31,7 +31,7 @@ const Page = () => {
   });
 
   return (
-    <div className="flex h-full w-full flex-col justify-normal gap-3 overflow-y-auto p-3  md:flex-row md:justify-between md:gap-0  md:overflow-hidden md:p-0">
+    <div className="flex h-screen w-full flex-col justify-normal gap-3 overflow-y-auto p-3  md:flex-row md:justify-between md:gap-0  md:overflow-hidden md:p-0">
       {/* Router */}
       <ul className="flex w-full  flex-wrap gap-3  rounded-sm border p-3 md:h-full md:w-1/5 md:flex-col md:justify-normal md:border-0  md:border-r">
         {leaves.map(({ code, name }) => (

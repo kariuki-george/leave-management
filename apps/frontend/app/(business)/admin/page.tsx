@@ -19,7 +19,7 @@ const Admin = () => {
     queryKey: ['allUsers'],
   });
   return (
-    <div className="h-full w-full p-5 ">
+    <div className="h-screen  w-full p-5 ">
       {/* Leaves dash */}
       <div className="flex w-full gap-3">
         {/* Total leaves */}

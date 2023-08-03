@@ -61,9 +61,9 @@ const Year = () => {
   }, [data]);
 
   return (
-    <div className="mb-10 flex h-screen w-full flex-col gap-3 overflow-y-auto  sm:flex-row sm:overflow-y-hidden">
+    <div className="mb-10 flex  h-screen w-full flex-col gap-3 overflow-y-auto   sm:flex-row sm:overflow-y-hidden">
       {/* Side with user details */}
-      <div className="min-w-400px flex h-full w-full flex-col border-0 sm:w-1/3 sm:border-r sm:p-3">
+      <div className="min-w-400px flex h-full w-full flex-col border-0  sm:w-1/3 sm:border-r sm:p-3">
         {/* Select User */}
         <Select
           onValueChange={(val) => {
