@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { LeavesModule } from './leaves/leaves.module';
 import { AuthModule } from './auth/auth.module';
@@ -24,16 +24,22 @@ import { LoggerModule } from 'nestjs-pino';
       limit: 10,
     }),
     MailModule,
-    LoggerModule.forRoot({
-      pinoHttp: {
-        transport: {
-          target: 'pino-pretty',
-          options: {
-            singleLine: true,
-          },
+    LoggerModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        pinoHttp: {
+          transport:
+            configService.get('NODE_ENV') === 'development'
+              ? {
+                  target: 'pino-pretty',
+                  options: {
+                    singleLine: true,
+                  },
+                }
+              : null,
+          level: 'error',
         },
-        level: 'error',
-      },
+      }),
+      inject: [ConfigService],
     }),
     UsersModule,
     LeavesModule,
