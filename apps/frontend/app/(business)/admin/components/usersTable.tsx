@@ -16,12 +16,15 @@ import { useMutation } from 'react-query';
 import { adminUpdateUser } from '@/lib/fetchers';
 import { toast } from '@/components/ui/use-toast';
 import { queryClient } from '@/lib/providers/reactquery.provider';
+import { useAuthStore } from '@/state/auth.state';
+import { cn } from '@/lib/utils';
 
 interface Props {
   users: IUser[];
 }
 
 const RecentLeavesTable = ({ users }: Props) => {
+  const currentUser = useAuthStore((state) => state.user);
   // Update user
   const [userId, setUserId] = useState(0);
   const { isLoading, mutate } = useMutation({
@@ -59,7 +62,11 @@ const RecentLeavesTable = ({ users }: Props) => {
 
             <TableCell>{user.lastName}</TableCell>
             <TableCell>{user.email ?? 'Not set yet'}</TableCell>
-            <TableCell>
+            <TableCell
+              className={cn(
+                currentUser?.userId === user.userId ? 'hidden' : 'flex'
+              )}
+            >
               {user.disabled ? (
                 <Button
                   isLoading={isLoading && user.userId === userId}

@@ -148,22 +148,18 @@ export class UsersService {
     return users;
   }
 
-  // Prevent admin from updating themselves - remove their admin status etc
-
-  async getAllUsers(userId: number): Promise<Partial<IUser>[]> {
-    return (
-      await this.dbService.users.findMany({
-        select: {
-          firstName: true,
-          lastName: true,
-          userId: true,
-          leaveRemaining: true,
-          email: true,
-          disabled: true,
-          isAdmin: true,
-        },
-      })
-    ).filter((user) => user.userId != userId);
+  async getAllUsers(): Promise<Partial<IUser>[]> {
+    return await this.dbService.users.findMany({
+      select: {
+        firstName: true,
+        lastName: true,
+        userId: true,
+        leaveRemaining: true,
+        email: true,
+        disabled: true,
+        isAdmin: true,
+      },
+    });
   }
 
   cleanUser(user: Users): IUser {

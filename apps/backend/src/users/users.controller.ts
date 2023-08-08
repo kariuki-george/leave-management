@@ -43,8 +43,8 @@ export class UsersController {
   // Include the disabled users
   @Get('/all')
   @UseGuards(AuthGuard, RolesGuard)
-  getAllUsers(@Req() req) {
-    return this.usersService.getAllUsers(req.user.userId);
+  getAllUsers() {
+    return this.usersService.getAllUsers();
   }
 
   @Put('/admin')
