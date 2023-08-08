@@ -94,6 +94,7 @@ const RequestLeaveForm = () => {
       // To get the realtime update on the year page
       queryClient.invalidateQueries(['userLeaves', user?.userId]);
       queryClient.invalidateQueries(['recentLeaves']);
+      queryClient.invalidateQueries(['getUsers']);
     },
   });
 
