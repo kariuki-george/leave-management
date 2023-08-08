@@ -35,7 +35,7 @@ export class LeavesService {
       throw new BadRequestException('Invalid start and end dates');
     }
     // Validate that the user is not on any leave
-    if (await this.isOnLeave(startDate, endDate)) {
+    if (await this.isOnLeave(startDate, endDate, user.userId)) {
       throw new BadRequestException(
         'Another leave overlaps with this leave, kindly check the start and end dates.'
       );
@@ -208,11 +208,16 @@ export class LeavesService {
 
     return this.setTime(currentLeaveYear);
   }
-  private async isOnLeave(startDate: Date, endDate: Date): Promise<boolean> {
+  private async isOnLeave(
+    startDate: Date,
+    endDate: Date,
+    userId: number
+  ): Promise<boolean> {
     // Criteria
 
     const isOnLeave = await this.dbService.leaves.findFirst({
       where: {
+        userId,
         OR: [
           {
             AND: [
