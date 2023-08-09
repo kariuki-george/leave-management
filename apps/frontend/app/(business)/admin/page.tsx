@@ -28,7 +28,7 @@ const Admin = () => {
             All Users
           </CardHeader>
           <CardDescription className="p-3 text-lg font-bold">
-            {(data?.length ?? 0) + 1}
+            {(data?.length ?? 0) }
           </CardDescription>
         </Card>
         <Card className="flex w-full  max-w-[250px] items-center justify-center">
