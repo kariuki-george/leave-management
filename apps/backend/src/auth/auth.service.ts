@@ -127,10 +127,10 @@ export class AuthService {
       expires: number;
     };
     try {
-      payload = (await verify(token, this.configService.get('JWT_SECRET'), {
+      payload = verify(token, this.configService.get('JWT_SECRET'), {
         audience: 'LMS-AUTH-PASSRESET',
         issuer: 'LMS',
-      })) as typeof payload;
+      }) as typeof payload;
     } catch (error) {
       this.logger.error(error);
       throw new BadRequestException(
