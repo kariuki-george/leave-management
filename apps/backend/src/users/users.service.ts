@@ -89,6 +89,8 @@ export class UsersService {
     }
   }
 
+  // Only the admin can perform updateUser operation. To add update user to individual users ontop of admin, 
+  // Beware of the input not being validated vulnerability.
   async updateUser(userId: number, input: Partial<Users>): Promise<IUser> {
     const user = await this.dbService.users.update({
       where: { userId },
@@ -116,7 +118,7 @@ export class UsersService {
         where: { userId, disabled: false },
       });
 
-      //   Method invoker should deal with the response approapriately
+      //   Method invoker should deal with the response appropriately
       if (!user) return null;
       // If a user is disabled, It's the same as if the user is deleted.
       await this.cacheService.set('user-' + userId, user);
