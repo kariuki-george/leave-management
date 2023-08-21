@@ -12,13 +12,15 @@ import * as argon from 'argon2';
 import { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Users } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
   constructor(
     private readonly dbService: PrismaService,
-    @Inject(CACHE_MANAGER) private readonly cacheService: Cache
+    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
+    private readonly configService: ConfigService
   ) {}
 
   async assignUser({
@@ -41,7 +43,9 @@ export class UsersService {
 
     //   Hash pass
 
-    const hash = await argon.hash(password);
+    const hash = await argon.hash(password, {
+      secret: Buffer.from(this.configService.get('PASS_SECRET') as string),
+    });
 
     // Update user with the new Details and initialize the number of days remaining
 
@@ -89,7 +93,7 @@ export class UsersService {
     }
   }
 
-  // Only the admin can perform updateUser operation. To add update user to individual users ontop of admin, 
+  // Only the admin can perform updateUser operation. To add update user to individual users ontop of admin,
   // Beware of the input not being validated vulnerability.
   async updateUser(userId: number, input: Partial<Users>): Promise<IUser> {
     const user = await this.dbService.users.update({

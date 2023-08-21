@@ -39,7 +39,9 @@ export class AuthService {
       );
     }
     // Validate pass
-    const isValid = await argon.verify(user.password, password);
+    const isValid = await argon.verify(user.password, password, {
+      secret: Buffer.from(this.configService.get('PASS_SECRET') as string),
+    });
 
     if (!isValid) {
       throw new BadRequestException('Wrong email or password provided');
@@ -143,7 +145,9 @@ export class AuthService {
       throw new BadRequestException('Authentication failed');
     }
 
-    const newPass = await argon.hash(password);
+    const newPass = await argon.hash(password, {
+      secret: Buffer.from(this.configService.get('PASS_SECRET') as string),
+    });
     let user;
     try {
       user = await this.usersService.updateUser(payload.userId, {
