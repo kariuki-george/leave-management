@@ -28,7 +28,7 @@ model Leaves {
 }
 
 model Users {
-  userId              Int    @id
+  userId              Int    @id @default(autoincrement()) 
   email               String?   @unique(map: "users_email_unique")
   firstName           String?
   lastName            String?
@@ -42,6 +42,36 @@ model Users {
   isAdmin            Boolean @default(false)
   disabled           Boolean @default(false)
   gender            Gender
+ 
+}
+
+model OffDays{
+  createdAt DateTime  @default(now())
+  author String?  
+  offDayId              Int   @id @default(autoincrement()) 
+  date DateTime
+  name String
+
+  @@unique([date,name])
+}
+
+
+model FinYear {
+  finYearId              Int   @id @default(autoincrement()) 
+  startDate DateTime
+  endDate DateTime
+  createdAt DateTime  @default(now())
+  author String? 
+  status  FinYearStatus @default(CURRENT)
+
+
+}
+
+
+enum FinYearStatus {
+  RETIRED
+  CURRENT
+  
 }
 
 

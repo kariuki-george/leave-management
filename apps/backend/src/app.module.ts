@@ -11,6 +11,9 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { RolesModule } from './roles/roles.module';
 import { MailModule } from './mails/mail.module';
 import { LoggerModule } from 'nestjs-pino';
+import { OffdaysModule } from './offdays/offdays.module';
+import { FinyearModule } from './finyear/finyear.module';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
@@ -46,6 +49,9 @@ import { LoggerModule } from 'nestjs-pino';
     AuthModule,
     DBModule,
     RolesModule,
+    OffdaysModule,
+    FinyearModule,
+    SharedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
