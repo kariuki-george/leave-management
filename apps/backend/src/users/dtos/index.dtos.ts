@@ -1,10 +1,12 @@
 import {
   IsBoolean,
   IsEmail,
+  IsEnum,
   IsInt,
   IsOptional,
   IsString,
 } from 'class-validator';
+import { Gender } from '@prisma/client';
 
 export class AssignUserDto {
   @IsEmail()
@@ -25,6 +27,8 @@ export class CreateUserDto {
   @IsBoolean()
   @IsOptional()
   isAdmin?: boolean;
+  @IsEnum(Gender)
+  gender: Gender;
 }
 
 export class AdminUpdateUserDto {

@@ -6,7 +6,7 @@ import {
   Logger,
   HttpStatus,
 } from '@nestjs/common';
-import { Response, Request } from 'express';
+import { Response } from 'express';
 
 @Catch(HttpException)
 export class CustomExceptionFilter implements ExceptionFilter {
@@ -15,13 +15,20 @@ export class CustomExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    const request = ctx.getRequest<Request>();
     const message =
-      exception instanceof Error
-        ? exception.getStatus() !== HttpStatus.INTERNAL_SERVER_ERROR
-          ? exception.message
-          : 'Something went wrong, please try again'
-        : 'Something went wrong, please try again';
+      'Something went wrong. We have been notified and are fixing it😊.';
+
+    if (
+      exception instanceof Error &&
+      exception.getStatus() === HttpStatus.INTERNAL_SERVER_ERROR
+    ) {
+      this.logger.error(exception);
+
+      return response
+        .status(500)
+        .json({ message, error: 'Internal Server Error' });
+    }
+
     const status =
       exception instanceof HttpException
         ? exception.getStatus() === HttpStatus.INTERNAL_SERVER_ERROR
@@ -29,16 +36,6 @@ export class CustomExceptionFilter implements ExceptionFilter {
           : exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
-      this.logger.verbose(exception);
-    }
-
-    response.status(status).json({
-      statusCode: status,
-      path: request.url,
-      success: false,
-      error: 'Bad Request',
-      message,
-    });
+    response.status(status).json(exception);
   }
 }

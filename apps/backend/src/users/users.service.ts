@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
@@ -74,10 +75,11 @@ export class UsersService {
     firstName,
     isAdmin,
     lastName,
+    gender,
   }: CreateUserDto): Promise<IUser> {
     try {
       const user = await this.dbService.users.create({
-        data: { userId: employeeId, firstName, lastName, isAdmin },
+        data: { userId: employeeId, firstName, lastName, isAdmin, gender },
       });
 
       return this.cleanUser(user);
@@ -89,7 +91,7 @@ export class UsersService {
         );
       }
       this.logger.error(error);
-      throw new BadRequestException('Something went wrong please try again');
+      throw new InternalServerErrorException();
     }
   }
 

@@ -1,3 +1,5 @@
+import { Gender } from '@prisma/client';
+
 export class IUser {
   userId: number;
   email: string;
@@ -7,4 +9,5 @@ export class IUser {
   jwtVersion: number;
   isAdmin: boolean;
   disabled: boolean;
+  gender: Gender;
 }
