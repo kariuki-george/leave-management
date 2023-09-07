@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
 import { CreateLeaveTypeDto } from './dtos/index.dtos';
@@ -30,7 +31,7 @@ export class LeaveTypesService {
         );
       }
       this.logger.error(error);
-      throw new BadRequestException('Something went wrong please try again');
+      throw new InternalServerErrorException();
     }
   }
 

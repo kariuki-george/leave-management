@@ -2,6 +2,7 @@ import { PrismaService } from '@db';
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
@@ -155,7 +156,7 @@ export class AuthService {
       });
     } catch (error) {
       this.logger.error(error);
-      throw new BadRequestException('Something went wrong, please try again');
+      throw new InternalServerErrorException();
     }
 
     return user;

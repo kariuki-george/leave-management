@@ -66,7 +66,7 @@ export class UsersService {
       return this.cleanUser(user as Users);
     } catch (error) {
       this.logger.error(error);
-      throw new BadRequestException('Something went wrong please try again');
+      throw new InternalServerErrorException();
     }
   }
 
@@ -132,7 +132,7 @@ export class UsersService {
       return this.cleanUser(user);
     } catch (error) {
       this.logger.error(error);
-      throw new BadRequestException('Something went wrong please try again');
+      throw new InternalServerErrorException();
     }
   }
 

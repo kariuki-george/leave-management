@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
@@ -82,7 +83,7 @@ export class LeavesService {
         throw new NotFoundException('LeaveType provided not found');
       }
       this.logger.error(error);
-      throw new BadRequestException('Something went wrong please try again');
+      throw new InternalServerErrorException();
     }
   }
 
