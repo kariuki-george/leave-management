@@ -5,6 +5,7 @@ import {
   HttpCode,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -43,8 +44,8 @@ export class UsersController {
   // Include the disabled users
   @Get('/all')
   @UseGuards(AuthGuard, RolesGuard)
-  getAllUsers() {
-    return this.usersService.getAllUsers();
+  getAllUsers(@Query('disabled') disabled: string) {
+    return this.usersService.getAllUsers(Boolean(disabled));
   }
 
   @Put('/admin')

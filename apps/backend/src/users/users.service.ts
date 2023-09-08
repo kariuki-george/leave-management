@@ -14,6 +14,7 @@ import { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Users } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
+import { FinyearService } from 'src/finyear/finyear.service';
 
 @Injectable()
 export class UsersService {
@@ -21,7 +22,8 @@ export class UsersService {
   constructor(
     private readonly dbService: PrismaService,
     @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly finYearService: FinyearService
   ) {}
 
   async assignUser({
@@ -57,8 +59,6 @@ export class UsersService {
           email,
           password: hash,
           jwtVersion: 0,
-          leaveLastUpdateDate: new Date(),
-          leaveRemaining: 30,
         },
       });
       await this.invalidateCache(user.userId);
@@ -78,8 +78,18 @@ export class UsersService {
     gender,
   }: CreateUserDto): Promise<IUser> {
     try {
+      const { finYearId } = await this.finYearService.getCurrentFinYear();
       const user = await this.dbService.users.create({
-        data: { userId: employeeId, firstName, lastName, isAdmin, gender },
+        data: {
+          userId: employeeId,
+          firstName,
+          lastName,
+          isAdmin,
+          gender,
+          annualLeaveBalances: {
+            create: { remainingDays: 30, finYear: { connect: { finYearId } } },
+          },
+        },
       });
 
       return this.cleanUser(user);
@@ -146,7 +156,6 @@ export class UsersService {
         firstName: true,
         lastName: true,
         userId: true,
-        leaveRemaining: true,
         email: true,
       },
       where: { disabled: false },
@@ -156,23 +165,22 @@ export class UsersService {
     return users;
   }
 
-  async getAllUsers(): Promise<Partial<IUser>[]> {
+  async getAllUsers(disabled: boolean): Promise<Partial<IUser>[]> {
     return await this.dbService.users.findMany({
       select: {
         firstName: true,
         lastName: true,
         userId: true,
-        leaveRemaining: true,
         email: true,
         disabled: true,
         isAdmin: true,
       },
+      where: { disabled },
     });
   }
 
   cleanUser(user: Users): IUser {
     delete user.password;
-    delete user.leaveLastUpdateDate;
     return user;
   }
 }

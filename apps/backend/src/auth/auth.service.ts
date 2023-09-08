@@ -13,7 +13,6 @@ import { sign, verify } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from 'src/users/users.service';
 import { MailService } from 'src/mails/mail.service';
-import { LeavesService } from 'src/leaves/leaves.service';
 
 @Injectable()
 export class AuthService {
@@ -22,8 +21,7 @@ export class AuthService {
     private readonly dbService: PrismaService,
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
-    private readonly mailService: MailService,
-    private readonly leavesService: LeavesService
+    private readonly mailService: MailService
   ) {}
 
   async login({
@@ -49,20 +47,10 @@ export class AuthService {
     }
 
     // Check renewable leave days
-    const leaveDays = this.leavesService.renewLeaveDays(user);
-    let updatedUser: IUser;
-    if (leaveDays) {
-      updatedUser = await this.usersService.updateUser(user.userId, {
-        jwtVersion: user.jwtVersion + 1,
-        leaveRemaining: leaveDays,
-        leaveLastUpdateDate: new Date(),
-      });
-    } else {
-      updatedUser = await this.usersService.updateUser(user.userId, {
-        jwtVersion: user.jwtVersion + 1,
-      });
-    }
-
+    // const leaveDays = this.leaveBalancesService.renewLeaveDays(user);
+    const updatedUser: IUser = await this.usersService.updateUser(user.userId, {
+      jwtVersion: user.jwtVersion + 1,
+    });
     // Create tokens
 
     const authToken = sign(

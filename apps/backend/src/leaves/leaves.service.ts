@@ -5,7 +5,6 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
-  NotFoundException,
 } from '@nestjs/common';
 import { ILeave, ILeaveWithUser } from './models/index.models';
 import { CreateLeaveDto } from './dtos/index.dtos';
@@ -14,6 +13,10 @@ import { UsersService } from 'src/users/users.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { Users } from '@prisma/client';
+import { SharedService } from 'src/shared/shared.service';
+import { LeaveTypesService } from './leaveTypes.service';
+import { FinyearService } from 'src/finyear/finyear.service';
+import { LeaveBalancesService } from './leaveBalances.service';
 
 @Injectable()
 export class LeavesService {
@@ -21,67 +24,113 @@ export class LeavesService {
   constructor(
     private readonly dbService: PrismaService,
     private readonly usersService: UsersService,
-    @Inject(CACHE_MANAGER) private readonly cacheService: Cache
+    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
+    private readonly sharedService: SharedService,
+    private readonly leaveTypesService: LeaveTypesService,
+    private readonly finYearService: FinyearService,
+    private readonly leaveBalancesService: LeaveBalancesService
   ) {}
 
   async createLeave(
     { code, endDate, startDate, totalDays }: CreateLeaveDto,
     user: IUser
   ): Promise<ILeaveWithUser> {
-    endDate = this.setTime(endDate);
-    startDate = this.setTime(startDate);
+    endDate = this.sharedService.setTime(endDate, true);
+    startDate = this.sharedService.setTime(startDate);
+    const { finYearId } = await this.finYearService.getCurrentFinYear();
 
     // Validity of dates
-    if (!this.validateDates(startDate, endDate)) {
-      throw new BadRequestException('Invalid start and end dates');
-    }
+    await this.validateLeaveDates(startDate, endDate);
+
+    // Get leave Type
+    const leaveType = await this.leaveTypesService.getLeaveType(code);
+
     // Validate that the user is not on any leave
     if (await this.isOnLeave(startDate, endDate, user.userId)) {
       throw new BadRequestException(
         'Another leave overlaps with this leave, kindly check the start and end dates.'
       );
     }
-    // Validate number of remaining leaves
-    user = await this.usersService.getUser(user.userId);
-    if (user.leaveRemaining < totalDays) {
-      throw new BadRequestException('Number of leave days exceeded');
-    }
-    try {
-      const leaveResponse = await this.dbService.$transaction([
-        this.dbService.leaves.create({
-          data: {
-            endDate,
-            startDate,
 
-            users: {
-              connect: {
-                userId: user.userId,
+    // Validate number of max  leave days
+    await this.leaveBalancesService.validateMaxLeaveDays(
+      totalDays,
+      user.userId,
+      leaveType
+    );
+
+    try {
+      let leaveResponse;
+      if (leaveType.isAnnualLeaveBased) {
+        leaveResponse = await this.dbService.$transaction([
+          this.dbService.leaves.create({
+            data: {
+              endDate,
+              startDate,
+              totalDays,
+
+              users: {
+                connect: {
+                  userId: user.userId,
+                },
+              },
+              leaveTypes: {
+                connect: { code },
               },
             },
-            leaveTypes: { connect: { code } },
-          },
 
-          include: { leaveTypes: true },
-        }),
-        this.dbService.users.update({
-          where: { userId: user.userId },
-          data: {
-            leaveRemaining: user.leaveRemaining - totalDays,
-            leaveLastUpdateDate: new Date(),
-          },
-        }),
-      ]);
+            include: { leaveTypes: true },
+          }),
+          this.dbService.annualLeaveBalances.update({
+            where: { userId: user.userId },
+            data: { remainingDays: { decrement: totalDays } },
+          }),
+        ]);
+      }
+      if (!leaveType.isAnnualLeaveBased) {
+        leaveResponse = await this.dbService.$transaction([
+          this.dbService.leaves.create({
+            data: {
+              endDate,
+              startDate,
+              totalDays,
+
+              users: {
+                connect: {
+                  userId: user.userId,
+                },
+              },
+              leaveTypes: {
+                connect: { code },
+              },
+            },
+
+            include: { leaveTypes: true },
+          }),
+          this.dbService.leaveBalances.upsert({
+            where: {
+              userId_leaveTypeCode_finYearId: {
+                finYearId,
+                userId: user.userId,
+                leaveTypeCode: code,
+              },
+            },
+            create: {
+              remainingDays: leaveType.maxDays - totalDays,
+              finYear: { connect: { finYearId } },
+            },
+            update: { remainingDays: { decrement: totalDays } },
+          }),
+        ]);
+      }
+
       await this.cacheService.del('leaves-code-' + code);
       await this.cacheService.del('leaves-user-' + user.userId);
       await this.cacheService.del('leaves-recent');
       await this.usersService.invalidateCache(user.userId);
 
-      user = this.usersService.cleanUser(leaveResponse[1]);
       return { ...leaveResponse[0], users: user };
     } catch (error) {
-      if (error.code === 'P2025') {
-        throw new NotFoundException('LeaveType provided not found');
-      }
       this.logger.error(error);
       throw new InternalServerErrorException();
     }
@@ -90,22 +139,22 @@ export class LeavesService {
   //NOTE: Returns all leaves in a leave year
   async getUserLeaves(userId: number): Promise<ILeave[]> {
     // Set dates
-    const currentWorkingYear = this.getCurrentLeaveYear();
+    const { startDate } = await this.finYearService.getCurrentFinYear();
 
     let leaves: ILeave[] = await this.cacheService.get('leaves-user-' + userId);
     if (leaves) {
       return leaves;
     }
     leaves = await this.dbService.leaves.findMany({
-      where: { userId, startDate: { gte: currentWorkingYear } },
+      where: { userId, startDate: { gte: startDate } },
       include: { leaveTypes: true },
     });
     await this.cacheService.set('leaves-user-' + userId, leaves);
     return leaves;
   }
 
-  async getLeaves(code: string): Promise<ILeaveWithUser[]> {
-    const currentWorkingYear = this.getCurrentLeaveYear();
+  async getLeavesByLeaveType(code: string): Promise<ILeaveWithUser[]> {
+    const { startDate } = await this.finYearService.getCurrentFinYear();
 
     let leaves: ILeaveWithUser[] = await this.cacheService.get(
       'leaves-code-' + code
@@ -114,7 +163,7 @@ export class LeavesService {
       return leaves;
     }
     leaves = await this.dbService.leaves.findMany({
-      where: { startDate: { gte: currentWorkingYear }, leaveType: code },
+      where: { startDate: { gte: startDate }, leaveTypeCode: code },
       include: {
         leaveTypes: true,
         users: {
@@ -131,14 +180,14 @@ export class LeavesService {
   }
 
   async getRecentLeaves(): Promise<ILeaveWithUser[]> {
-    const currentWorkingYear = this.getCurrentLeaveYear();
+    const { startDate } = await this.finYearService.getCurrentFinYear();
 
     let leaves: ILeaveWithUser[] = await this.cacheService.get('leaves-recent');
     if (leaves) {
       return leaves;
     }
     leaves = await this.dbService.leaves.findMany({
-      where: { startDate: { gte: currentWorkingYear } },
+      where: { startDate: { gte: startDate } },
       include: {
         leaveTypes: true,
         users: {
@@ -156,59 +205,26 @@ export class LeavesService {
     return leaves;
   }
 
-  renewLeaveDays(user: Users): number {
-    // Renew leave days on every new financial year
-    // A user is entitled to 30 leave days
-    // A user can also have 15 days roll over from the previous year
+  // Validate the dates are within the financial year
+  private async validateLeaveDates(
+    startDate: Date,
+    endDate: Date
+  ): Promise<boolean> {
+    const currentFinYear = await this.finYearService.getCurrentFinYear();
 
-    // Check the last time the user got a leave
-    if (user.leaveLastUpdateDate >= this.getCurrentLeaveYear()) {
-      // User has already taken a leave in the current year
-      return 0;
+    if (
+      currentFinYear.startDate > startDate ||
+      currentFinYear.endDate < endDate
+    ) {
+      throw new BadRequestException(
+        'All leaves should be within the current financial year'
+      );
     }
-
-    return user.leaveRemaining > 15 ? 45 : user.leaveRemaining + 30;
+    return true;
   }
 
   // TODO: BEWARE OF SERVER TIME
 
-  private validateDates(startDate: Date, endDate: Date): boolean {
-    const today = this.setTime(new Date(), true);
-    return startDate > today && endDate >= startDate;
-  }
-  private setTime(date: Date, isEnd?: boolean): Date {
-    if (isEnd) {
-      return new Date(new Date(date).setHours(23, 59, 59, 999));
-    }
-
-    return new Date(new Date(date).setHours(0, 0, 0, 0));
-  }
-
-  private getCurrentLeaveYear() {
-    // Leave year starts on June year1 to May year2
-    let currentYear = new Date().getFullYear();
-    let currentMonth = new Date().getMonth();
-    let currentLeaveYear = new Date();
-    let currentDate = new Date().getDate();
-
-    if (currentMonth < 6) {
-      currentYear -= 1;
-      currentMonth = 5;
-      currentDate = 1;
-    }
-
-    // Set year
-    currentLeaveYear = new Date(currentLeaveYear.setFullYear(currentYear));
-
-    // Set month
-
-    currentLeaveYear = new Date(currentLeaveYear.setMonth(currentMonth));
-
-    // Set day
-    currentLeaveYear = new Date(currentLeaveYear.setDate(currentDate));
-
-    return this.setTime(currentLeaveYear);
-  }
   private async isOnLeave(
     startDate: Date,
     endDate: Date,

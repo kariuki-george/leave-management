@@ -60,6 +60,11 @@ export class LeavesController {
     if (!code) {
       throw new BadRequestException('LeaveTypeCode query param is missing');
     }
-    return this.leavesService.getLeaves(code);
+    return this.leavesService.getLeavesByLeaveType(code);
+  }
+
+  @Get()
+  getUserStats() {
+    return;
   }
 }

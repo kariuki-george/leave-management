@@ -14,6 +14,8 @@ import { LoggerModule } from 'nestjs-pino';
 import { OffdaysModule } from './offdays/offdays.module';
 import { FinyearModule } from './finyear/finyear.module';
 import { SharedModule } from './shared/shared.module';
+import { WorkerModule } from './worker/worker.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -26,6 +28,7 @@ import { SharedModule } from './shared/shared.module';
       ttl: 60,
       limit: 10,
     }),
+    ScheduleModule.forRoot(),
     MailModule,
     LoggerModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
@@ -52,6 +55,7 @@ import { SharedModule } from './shared/shared.module';
     OffdaysModule,
     FinyearModule,
     SharedModule,
+    WorkerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

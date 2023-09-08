@@ -3,6 +3,8 @@ import { IUser } from 'src/users/models/index.models';
 export class ILeaveType {
   code: string;
   name: string;
+  isAnnualLeaveBased: boolean;
+  maxDays: number;
 }
 
 export class ILeave {

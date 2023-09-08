@@ -8,72 +8,92 @@ datasource db {
 }
 
 model LeaveTypes {
-  name   String
-  code   String   @id
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt() @default(now())
-  leaves Leaves[]
+  name               String
+  code               String   @id
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @default(now()) @updatedAt
+  isAnnualLeaveBased Boolean  @default(true)
+  maxDays            Int?     @default(0)
+  leaves             Leaves[]
+  leaveBalances LeaveBalances[]
 }
 
 model Leaves {
-  leaveId    Int         @id @default(autoincrement()) 
-  startDate  DateTime    @db.Date
-  endDate    DateTime    @db.Date
-  leaveType  String?
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt() @default(now()) 
+  leaveId    Int         @id @default(autoincrement())
+  startDate  DateTime
+  endDate    DateTime
+  leaveTypeCode  String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @default(now()) @updatedAt
   userId     Int?
-  leaveTypes LeaveTypes? @relation(fields: [leaveType], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "leaves_leaveType_leaveTypes_code_fk")
-  users      Users?      @relation(fields: [userId], references: [userId], onDelete: NoAction, onUpdate: NoAction, map: "leaves_userId_users_userId_fk")
+  totalDays  Int
+  leaveTypes LeaveTypes? @relation(fields: [leaveTypeCode], references: [code])
+  users      Users?      @relation(fields: [userId], references: [userId])
+  
+}
+
+model LeaveBalances {
+  userId Int
+  leaveTypeCode   String
+  remainingDays Int 
+  finYearId Int
+  finYear FinYear @relation(fields: [finYearId],references: [finYearId])
+  leaveTypes LeaveTypes? @relation(fields: [leaveTypeCode], references: [code])
+  users      Users?      @relation(fields: [userId], references: [userId]) 
+
+  @@unique([userId,leaveTypeCode,finYearId])
+}
+
+model AnnualLeaveBalances {
+  userId Int  @id
+  remainingDays Int  
+    finYearId Int
+  finYear FinYear @relation(fields: [finYearId],references: [finYearId])
+  users      Users?      @relation(fields: [userId], references: [userId]) 
 }
 
 model Users {
-  userId              Int    @id @default(autoincrement()) 
-  email               String?   @unique(map: "users_email_unique")
-  firstName           String?
-  lastName            String?
-  password            String?
-  createdAt DateTime  @default(now())
-   updatedAt DateTime  @updatedAt() @default(now())
-  leaveRemaining      Int?      @db.SmallInt
-  leaveLastUpdateDate DateTime? @db.Date @default(now())
-  jwtVersion          Int?      
-  leaves              Leaves[]
-  isAdmin            Boolean @default(false)
-  disabled           Boolean @default(false)
-  gender            Gender
- 
+  userId     Int      @id @default(autoincrement())
+  email      String?  @unique(map: "users_email_unique")
+  firstName  String?
+  lastName   String?
+  password   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+  jwtVersion Int?
+  isAdmin    Boolean  @default(false)
+  disabled   Boolean  @default(false)
+  gender     Gender
+  leaves     Leaves[]
+  leaveBalances LeaveBalances[]
+  annualLeaveBalances AnnualLeaveBalances[]
 }
 
-model OffDays{
-  createdAt DateTime  @default(now())
-  author String?  
-  offDayId              Int   @id @default(autoincrement()) 
-  date DateTime
-  name String
+model OffDays {
+  createdAt DateTime @default(now())
+  offDayId  Int      @id @default(autoincrement())
+  date      DateTime
+  name      String
+  author    String?
 
-  @@unique([date,name])
+  @@unique([date, name])
 }
-
 
 model FinYear {
-  finYearId              Int   @id @default(autoincrement()) 
+  finYearId Int           @id @default(autoincrement())
   startDate DateTime
-  endDate DateTime
-  createdAt DateTime  @default(now())
-  author String? 
-  status  FinYearStatus @default(CURRENT)
-
-
+  endDate   DateTime
+  createdAt DateTime      @default(now())
+  author    String?
+  status    FinYearStatus @default(CURRENT)
+  leaveBalances LeaveBalances[]
+  annualLeaveBalances AnnualLeaveBalances[]
 }
-
 
 enum FinYearStatus {
   RETIRED
   CURRENT
-  
 }
-
 
 enum Gender {
   M

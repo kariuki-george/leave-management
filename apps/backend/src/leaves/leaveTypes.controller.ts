@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -21,6 +22,16 @@ export class LeaveTypesController {
   @HttpCode(201)
   @UseGuards(AuthGuard, RolesGuard)
   createLeaveType(@Body() input: CreateLeaveTypeDto): Promise<ILeaveType> {
+    // Validate input
+    if (input.isAnnualLeaveBased) {
+      input.maxDays = 0;
+    } else {
+      if (!input.maxDays) {
+        throw new BadRequestException(
+          'Please enter a valid max number of dayss'
+        );
+      }
+    }
     return this.leaveTypesService.createLeaveType(input);
   }
 

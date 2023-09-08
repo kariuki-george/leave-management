@@ -69,6 +69,7 @@ export class OffdaysService {
         date: formatDate(startDate.getFullYear() + 1, 0, 1),
       },
     ];
+
     return list;
   }
 }

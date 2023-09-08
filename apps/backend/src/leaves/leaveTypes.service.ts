@@ -19,9 +19,21 @@ export class LeaveTypesService {
     @Inject(CACHE_MANAGER) private readonly cacheService: Cache
   ) {}
 
-  async createLeaveType(data: CreateLeaveTypeDto): Promise<ILeaveType> {
+  async createLeaveType({
+    code,
+    isAnnualLeaveBased,
+    maxDays,
+    name,
+  }: CreateLeaveTypeDto): Promise<ILeaveType> {
     try {
-      const leaveType = await this.dbService.leaveTypes.create({ data });
+      const leaveType = await this.dbService.leaveTypes.create({
+        data: {
+          code,
+          name,
+          isAnnualLeaveBased,
+          maxDays,
+        },
+      });
       await this.cacheService.del('leaveTypes');
       return leaveType;
     } catch (error) {
@@ -44,5 +56,18 @@ export class LeaveTypesService {
     leaveTypes = await this.dbService.leaveTypes.findMany();
     await this.cacheService.set('leaveTypes', leaveTypes);
     return leaveTypes;
+  }
+
+  async getLeaveType(code: string): Promise<ILeaveType> {
+    // Check cache
+    let leaveType: ILeaveType = await this.cacheService.get('leaveType' + code);
+    if (leaveType) {
+      return leaveType;
+    }
+    leaveType = await this.dbService.leaveTypes.findUnique({
+      where: { code },
+    });
+    await this.cacheService.set('leaveType' + code, leaveType);
+    return leaveType;
   }
 }
