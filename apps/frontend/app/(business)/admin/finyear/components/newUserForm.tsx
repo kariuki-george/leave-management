@@ -20,6 +20,13 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { queryClient } from '@/lib/providers/reactquery.provider';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const NewUserForm = () => {
   const { mutate, isLoading } = useMutation({
@@ -38,10 +45,10 @@ const NewUserForm = () => {
 
   const formSchema = z.object({
     employeeId: z.string(),
-
     firstName: z.string(),
     lastName: z.string(),
     isAdmin: z.boolean(),
+    gender: z.enum(['M', 'F']),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -51,6 +58,7 @@ const NewUserForm = () => {
       firstName: '',
       lastName: '',
       isAdmin: false,
+      gender: 'M',
     },
   });
 
@@ -102,6 +110,29 @@ const NewUserForm = () => {
               <FormControl>
                 <Input className="h-12" placeholder="Doe" {...field} />
               </FormControl>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="gender"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Gender</FormLabel>
+
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Gender" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="M">Male</SelectItem>
+                  <SelectItem value="F">Female</SelectItem>
+                </SelectContent>
+              </Select>
 
               <FormMessage />
             </FormItem>
