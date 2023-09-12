@@ -7,12 +7,11 @@ import {
   Logger,
 } from '@nestjs/common';
 import { ILeave, ILeaveWithUser } from './models/index.models';
-import { CreateLeaveDto } from './dtos/index.dtos';
+import { CreateLeaveDto, IGetLeavesFilterDto } from './dtos/index.dtos';
 import { IUser } from 'src/users/models/index.models';
 import { UsersService } from 'src/users/users.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { Users } from '@prisma/client';
 import { SharedService } from 'src/shared/shared.service';
 import { LeaveTypesService } from './leaveTypes.service';
 import { FinyearService } from 'src/finyear/finyear.service';
@@ -68,7 +67,7 @@ export class LeavesService {
               endDate,
               startDate,
               totalDays,
-
+              finYear: { connect: { finYearId } },
               users: {
                 connect: {
                   userId: user.userId,
@@ -94,6 +93,7 @@ export class LeavesService {
               endDate,
               startDate,
               totalDays,
+              finYear: { connect: { finYearId } },
 
               users: {
                 connect: {
@@ -107,7 +107,7 @@ export class LeavesService {
 
             include: { leaveTypes: true },
           }),
-          this.dbService.leaveBalances.upsert({
+          this.dbService.leaveBalances.update({
             where: {
               userId_leaveTypeCode_finYearId: {
                 finYearId,
@@ -115,11 +115,8 @@ export class LeavesService {
                 leaveTypeCode: code,
               },
             },
-            create: {
-              remainingDays: leaveType.maxDays - totalDays,
-              finYear: { connect: { finYearId } },
-            },
-            update: { remainingDays: { decrement: totalDays } },
+
+            data: { remainingDays: { decrement: totalDays } },
           }),
         ]);
       }
@@ -137,33 +134,19 @@ export class LeavesService {
   }
 
   //NOTE: Returns all leaves in a leave year
-  async getUserLeaves(userId: number): Promise<ILeave[]> {
-    // Set dates
-    const { startDate } = await this.finYearService.getCurrentFinYear();
 
-    let leaves: ILeave[] = await this.cacheService.get('leaves-user-' + userId);
-    if (leaves) {
-      return leaves;
-    }
-    leaves = await this.dbService.leaves.findMany({
-      where: { userId, startDate: { gte: startDate } },
-      include: { leaveTypes: true },
-    });
-    await this.cacheService.set('leaves-user-' + userId, leaves);
-    return leaves;
-  }
-
-  async getLeavesByLeaveType(code: string): Promise<ILeaveWithUser[]> {
-    const { startDate } = await this.finYearService.getCurrentFinYear();
-
+  async getLeaves(filter: IGetLeavesFilterDto): Promise<ILeaveWithUser[]> {
     let leaves: ILeaveWithUser[] = await this.cacheService.get(
-      'leaves-code-' + code
+      'leaves-' + JSON.stringify(filter)
     );
     if (leaves) {
       return leaves;
     }
+
+    const { finYearId, leaveTypeCode, limit, userId } = filter;
+
     leaves = await this.dbService.leaves.findMany({
-      where: { startDate: { gte: startDate }, leaveTypeCode: code },
+      where: { userId, leaveTypeCode, finYearId },
       include: {
         leaveTypes: true,
         users: {
@@ -174,34 +157,11 @@ export class LeavesService {
           },
         },
       },
+      take: limit,
     });
-    await this.cacheService.set('leaves-code-' + code, leaves);
-    return leaves;
-  }
 
-  async getRecentLeaves(): Promise<ILeaveWithUser[]> {
-    const { startDate } = await this.finYearService.getCurrentFinYear();
-
-    let leaves: ILeaveWithUser[] = await this.cacheService.get('leaves-recent');
-    if (leaves) {
-      return leaves;
-    }
-    leaves = await this.dbService.leaves.findMany({
-      where: { startDate: { gte: startDate } },
-      include: {
-        leaveTypes: true,
-        users: {
-          select: {
-            email: true,
-            firstName: true,
-            lastName: true,
-          },
-        },
-      },
-      take: 10,
-      orderBy: { createdAt: 'desc' },
-    });
-    await this.cacheService.set('leaves-recent', leaves);
+    // TODO: CACHE BETTER: RESTRICT FILTER TO A CERTAIN USER IF POSSIBLE OR INVALIDATE GLOBAL CACHES UPON MUTATIONS
+    // await this.cacheService.set('leaves-' + JSON.stringify(filter), leaves);
     return leaves;
   }
 

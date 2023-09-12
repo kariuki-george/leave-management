@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  ParseIntPipe,
   Post,
   Query,
   Req,
@@ -40,31 +41,23 @@ export class LeavesController {
     );
   }
 
-  @Get('/user')
-  @UseGuards(AuthGuard)
-  getLeavesByUserId(@Query('userId') userId: string) {
-    if (!Number(userId)) {
-      throw new BadRequestException('Invalid userId query param');
-    }
-    return this.leavesService.getUserLeaves(Number(userId));
-  }
-
-  @Get('/recent')
-  @UseGuards(AuthGuard)
-  getRecentLeaves() {
-    return this.leavesService.getRecentLeaves();
-  }
   @Get()
   @UseGuards(AuthGuard)
-  getLeaves(@Query('code') code: string) {
-    if (!code) {
-      throw new BadRequestException('LeaveTypeCode query param is missing');
-    }
-    return this.leavesService.getLeavesByLeaveType(code);
-  }
+  getLeaves(
+    @Query('leaveTypeCode') leaveTypeCode?: string,
+    @Query('limit') limit?: number,
+    @Query('userId') userId?: number,
+    @Query('finYearId') finYearId?: number
+  ) {
+    limit = Number(limit) || undefined;
+    userId = Number(userId) || undefined;
+    finYearId = Number(finYearId) || undefined;
 
-  @Get()
-  getUserStats() {
-    return;
+    return this.leavesService.getLeaves({
+      leaveTypeCode,
+      finYearId,
+      limit,
+      userId,
+    });
   }
 }

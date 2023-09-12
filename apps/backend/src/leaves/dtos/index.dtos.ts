@@ -2,6 +2,7 @@
 
 import {
   IsBoolean,
+  IsIn,
   IsInt,
   IsOptional,
   IsPositive,
@@ -30,4 +31,22 @@ export class CreateLeaveDto {
   code: string;
   @IsInt()
   totalDays: number;
+}
+
+export class IGetLeavesFilterDto {
+  @IsInt()
+  @IsPositive()
+  @IsOptional()
+  userId?: number;
+  @IsInt()
+  @IsPositive()
+  @IsOptional()
+  finYearId?: number;
+  @IsString()
+  @IsOptional()
+  leaveTypeCode?: string;
+  @IsInt()
+  @IsOptional()
+  @IsPositive()
+  limit?: number;
 }

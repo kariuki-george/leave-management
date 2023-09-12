@@ -11,11 +11,9 @@
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "moduleNameMapper": {
-    "drizzle/drizzle/(.*)": "<rootDir>/../libs/drizzle/src/$1",
-    "drizzle/drizzle": "<rootDir>/../libs/drizzle/src",
-    "@db/prisma/(.*)": "<rootDir>/../libs/prisma/src/$1",
-    "@db/prisma": "<rootDir>/../libs/prisma/src",
-    "@shared/@shared/(.*)": "<rootDir>/../libs/@shared/src/$1",
-    "@shared/@shared": "<rootDir>/../libs/@shared/src"
+    "@db/(.*)": "<rootDir>/../libs/prisma/src/$1",
+    "@db": "<rootDir>/../libs/prisma/src",
+    "@shared/(.*)": "<rootDir>/../libs/shared/src/$1",
+    "@shared/": "<rootDir>/../libs/shared/src"
   }
 }

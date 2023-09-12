@@ -92,7 +92,9 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@db(|/.*)$": "<rootDir>/libs/prisma/src/$1"
+      "^@db(|/.*)$": "<rootDir>/libs/prisma/src/$1",
+      "^@/(.*)$": "<rootDir>/src/$1",
+      "^@src/(.*)$": "<rootDir>/src/$1"
     }
   }
 }

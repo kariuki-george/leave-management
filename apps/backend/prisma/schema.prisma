@@ -29,6 +29,8 @@ model Leaves {
   totalDays  Int
   leaveTypes LeaveTypes? @relation(fields: [leaveTypeCode], references: [code])
   users      Users?      @relation(fields: [userId], references: [userId])
+   finYearId Int
+  finYear FinYear @relation(fields: [finYearId],references: [finYearId])
   
 }
 
@@ -53,7 +55,7 @@ model AnnualLeaveBalances {
 }
 
 model Users {
-  userId     Int      @id @default(autoincrement())
+  userId     Int      @id 
   email      String?  @unique(map: "users_email_unique")
   firstName  String?
   lastName   String?
@@ -88,6 +90,7 @@ model FinYear {
   status    FinYearStatus @default(CURRENT)
   leaveBalances LeaveBalances[]
   annualLeaveBalances AnnualLeaveBalances[]
+  leaves Leaves[]
 }
 
 enum FinYearStatus {

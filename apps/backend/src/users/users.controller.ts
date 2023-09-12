@@ -38,7 +38,12 @@ export class UsersController {
   @Get()
   @UseGuards(AuthGuard)
   getUsers() {
-    return this.usersService.getUsers();
+    return this.usersService.getUsers({});
+  }
+  @Get('/admin')
+  @UseGuards(AuthGuard, RolesGuard)
+  getUsersAdmin(@Query('disabled') disabled: string) {
+    return this.usersService.getUsers({ disabled: disabled === 'true' });
   }
 
   // Include the disabled users

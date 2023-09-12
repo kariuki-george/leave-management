@@ -14,7 +14,7 @@ import { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Users } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
-import { FinyearService } from 'src/finyear/finyear.service';
+import { FinyearService } from '../finyear/finyear.service';
 
 @Injectable()
 export class UsersService {
@@ -146,8 +146,10 @@ export class UsersService {
     }
   }
 
-  async getUsers(): Promise<Partial<IUser>[]> {
-    let users: Partial<IUser>[] = await this.cacheService.get('users');
+  async getUsers(filter: Partial<IUser>): Promise<Partial<IUser>[]> {
+    let users: Partial<IUser>[] = await this.cacheService.get(
+      'users' + JSON.stringify(filter)
+    );
 
     if (users) return users;
 
@@ -158,10 +160,10 @@ export class UsersService {
         userId: true,
         email: true,
       },
-      where: { disabled: false },
+      where: filter,
     });
 
-    await this.cacheService.set('users', users);
+    await this.cacheService.set('users' + JSON.stringify(filter), users);
     return users;
   }
 

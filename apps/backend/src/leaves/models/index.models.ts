@@ -23,3 +23,15 @@ export class ILeaveWithUser {
   leaveTypes: ILeaveType;
   users: Partial<IUser>;
 }
+
+export class ILeaveBalance {
+  remainingDays: number;
+  leaveTypeCode: string;
+  finYearId: number;
+  userId: number;
+}
+
+export class IUserLeaveBalance {
+  leaveBalances: ILeaveBalance[];
+  annualLeaveBalance: Partial<ILeaveBalance>;
+}

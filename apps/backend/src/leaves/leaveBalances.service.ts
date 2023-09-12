@@ -5,7 +5,11 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { ILeaveType } from './models/index.models';
+import {
+  ILeaveBalance,
+  ILeaveType,
+  IUserLeaveBalance,
+} from './models/index.models';
 import { FinyearService } from 'src/finyear/finyear.service';
 import { AnnualLeaveBalances } from '@prisma/client';
 
@@ -40,20 +44,29 @@ export class LeaveBalancesService {
       remainingDays = annualLeaveBalance.remainingDays;
     }
     if (leaveType.maxDays) {
-      remainingDays = (
-        await this.dbService.leaveBalances.findUnique({
-          where: {
-            userId_leaveTypeCode_finYearId: {
-              finYearId,
-              leaveTypeCode: leaveType.code,
-              userId,
-            },
+      const leaveBalance = await this.dbService.leaveBalances.findUnique({
+        where: {
+          userId_leaveTypeCode_finYearId: {
+            finYearId,
+            leaveTypeCode: leaveType.code,
+            userId,
           },
-          select: {
-            remainingDays: true,
-          },
-        })
-      ).remainingDays;
+        },
+        select: {
+          remainingDays: true,
+        },
+      });
+
+      if (leaveBalance) {
+        remainingDays = leaveBalance.remainingDays;
+      } else {
+        const leaveBalance = await this.createLeaveBalance(
+          userId,
+          finYearId,
+          leaveType
+        );
+        remainingDays = leaveBalance.remainingDays;
+      }
     }
 
     if (remainingDays < totalDays) {
@@ -100,5 +113,53 @@ export class LeaveBalancesService {
     } catch (error) {
       this.logger.error(error);
     }
+  }
+
+  async getUserLeaveBalances(
+    userId: number,
+    finYearId = 0
+  ): Promise<IUserLeaveBalance> {
+    if (!finYearId) {
+      finYearId = (await this.finYearService.getCurrentFinYear()).finYearId;
+    }
+    const leaveBalances: ILeaveBalance[] =
+      await this.dbService.leaveBalances.findMany({
+        where: { userId, finYearId },
+        select: {
+          finYearId: true,
+          leaveTypeCode: true,
+          remainingDays: true,
+          userId: true,
+        },
+      });
+    const annualLeaveBalance =
+      await this.dbService.annualLeaveBalances.findUnique({
+        where: { userId, finYearId },
+        select: {
+          finYearId: true,
+
+          remainingDays: true,
+          userId: true,
+        },
+      });
+
+    // TODO: Cache this heavy op
+
+    return { annualLeaveBalance, leaveBalances };
+  }
+
+  createLeaveBalance(
+    userId: number,
+    finYearId: number,
+    leaveType: ILeaveType
+  ): Promise<ILeaveBalance> {
+    return this.dbService.leaveBalances.create({
+      data: {
+        userId,
+        finYearId,
+        leaveTypeCode: leaveType.code,
+        remainingDays: leaveType.maxDays,
+      },
+    });
   }
 }
