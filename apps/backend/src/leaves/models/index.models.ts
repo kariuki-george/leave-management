@@ -29,6 +29,7 @@ export class ILeaveBalance {
   leaveTypeCode: string;
   finYearId: number;
   userId: number;
+  leaveTypes: ILeaveType;
 }
 
 export class IUserLeaveBalance {

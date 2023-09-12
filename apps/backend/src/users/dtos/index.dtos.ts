@@ -4,7 +4,10 @@ import {
   IsEnum,
   IsInt,
   IsOptional,
+  IsPositive,
   IsString,
+  Min,
+  MinLength,
 } from 'class-validator';
 import { Gender } from '@prisma/client';
 
@@ -19,10 +22,13 @@ export class AssignUserDto {
 
 export class CreateUserDto {
   @IsInt()
+  @IsPositive()
   employeeId: number;
   @IsString()
+  @MinLength(3)
   firstName: string;
   @IsString()
+  @MinLength(3)
   lastName: string;
   @IsBoolean()
   @IsOptional()

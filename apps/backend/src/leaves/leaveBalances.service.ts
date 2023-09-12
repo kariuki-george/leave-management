@@ -130,6 +130,14 @@ export class LeaveBalancesService {
           leaveTypeCode: true,
           remainingDays: true,
           userId: true,
+          leaveTypes: {
+            select: {
+              code: true,
+              maxDays: true,
+              name: true,
+              isAnnualLeaveBased: true,
+            },
+          },
         },
       });
     const annualLeaveBalance =
@@ -160,6 +168,7 @@ export class LeaveBalancesService {
         leaveTypeCode: leaveType.code,
         remainingDays: leaveType.maxDays,
       },
+      include: { leaveTypes: true },
     });
   }
 }
