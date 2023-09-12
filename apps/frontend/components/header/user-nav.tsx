@@ -3,7 +3,15 @@
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/state/auth.state';
 import useStore from '@/state/useStore';
-import { BarChart4, Calendar, Home, LogOut, Settings } from 'lucide-react';
+import {
+  BarChart4,
+  Calendar,
+  ChevronDown,
+  Home,
+  LogOut,
+  Settings,
+  ShieldCheck,
+} from 'lucide-react';
 
 import { siteConfig } from '@/config/site';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -15,12 +23,19 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 import { useMutation } from 'react-query';
 import { logout } from '@/lib/fetchers';
 import { toast } from '../ui/use-toast';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { adminRoutes, leaveRoutes } from './auth-user-routes';
 
 export function UserNav() {
   const state = useStore(useAuthStore, (state) => state);
@@ -62,7 +77,7 @@ export function UserNav() {
             <p className="text-sm font-medium leading-none">
               {state?.user?.firstName}
             </p>
-            <p className="text-xs leading-none text-muted-foreground">
+            <p className="text-muted-foreground text-xs leading-none">
               {state?.user?.email}
             </p>
           </div>
@@ -76,29 +91,58 @@ export function UserNav() {
               {/* <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut> */}
             </DropdownMenuItem>
           </Link>
-          <Link href={siteConfig.nav.year}>
-            <DropdownMenuItem>
-              <Calendar className="mr-2 h-4 w-4" />
-              <span>My Year</span>
-              {/* <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut> */}
-            </DropdownMenuItem>
-          </Link>
-          <Link href={siteConfig.nav.reports}>
-            <DropdownMenuItem>
-              <BarChart4 className="mr-2 h-4 w-4" />
-              <span>Reports</span>
-              {/* <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut> */}
-            </DropdownMenuItem>
-          </Link>
+
+          <Collapsible className="w-full">
+            <CollapsibleTrigger className="w-full">
+              <span className="  focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center justify-between rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:cursor-pointer data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+                <span className="flex">
+                  {' '}
+                  <BarChart4 className="mr-2 h-4 w-4" />
+                  <span>Leaves</span>
+                </span>
+
+                <ChevronDown className="mr-2 h-4 w-4" />
+              </span>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="bg-background flex w-full flex-col items-end ">
+              {leaveRoutes.map((leaveRoute, index) => (
+                <Link key={index} href={leaveRoute.href} className=" w-[90%]  ">
+                  <DropdownMenuItem key={index} className=" w-[90%]  ">
+                    {leaveRoute.Icon}
+                    <span>{leaveRoute.title}</span>
+                  </DropdownMenuItem>
+                </Link>
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
 
           {state?.user?.isAdmin && (
-            <Link href={siteConfig.nav.admin}>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Admin</span>
-                {/* <DropdownMenuShortcut>⌘S</DropdownMenuShortcut> */}
-              </DropdownMenuItem>
-            </Link>
+            <Collapsible className="w-full">
+              <CollapsibleTrigger className="w-full">
+                <span className="  focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center justify-between rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:cursor-pointer data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+                  <span className="flex">
+                    <ShieldCheck className="mr-2 h-4 w-4" />
+                    <span>Admin</span>
+                  </span>
+
+                  <ChevronDown className="mr-2 h-4 w-4" />
+                </span>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="bg-background flex w-full flex-col items-end ">
+                {adminRoutes.map((adminRoute, index) => (
+                  <Link
+                    key={index}
+                    href={adminRoute.href}
+                    className=" w-[90%]  "
+                  >
+                    <DropdownMenuItem key={index} className=" w-[90%]  ">
+                      {adminRoute.Icon}
+                      <span>{adminRoute.title}</span>
+                    </DropdownMenuItem>
+                  </Link>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
           )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

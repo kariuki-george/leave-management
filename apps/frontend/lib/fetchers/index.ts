@@ -3,6 +3,9 @@ import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
 import { toast } from '@/components/ui/use-toast';
 import { IUser } from '../types/user';
+import { IAnnualLeaveBalance, ILeaveBalances } from '../types/leaveBalances';
+import { ILeaveType } from '../types/leaveTypes';
+import { FinYear } from '../types/finyear';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const isDev = process.env.NODE_ENV === 'development';
@@ -73,9 +76,9 @@ export const changePassword = (data: any) => {
   return axios.post(API + 'auth/change-pass', data);
 };
 
-export const getMe = async () => {
+export const getMasterData = async () => {
   try {
-    const res = await query('users/me');
+    const res = await query('master');
     return res.data;
   } catch (error: any) {
     errorParser(error);
@@ -85,18 +88,33 @@ export const getMe = async () => {
 // Dashboard
 
 export const getRecentLeaves = () => {
-  return query('leaves/recent');
+  return query('leaves?limit=10');
 };
 
 export const addLeave = (data: any) => {
   return postMutate('leaves', data);
 };
 
-// Year
+export const getLeaveBalances = async () => {
+  const data = await query('leaveBalances');
+  return data.data as ILeaveBalances;
+};
+
+// Leaves
 
 export const getUsers = async (): Promise<IUser[]> => {
   const { data } = await query('users');
   return data as IUser[];
+};
+
+export const getLeaveTypes = async (): Promise<ILeaveType[]> => {
+  const { data } = await query('leaveTypes');
+  return data as ILeaveType[];
+};
+
+export const getFinYears = async (): Promise<FinYear[]> => {
+  const { data } = await query('finyears');
+  return data as FinYear[];
 };
 
 // Admin
@@ -106,7 +124,7 @@ export const getAllUsers = async (): Promise<IUser[]> => {
 };
 
 export const getUserLeaves = (userId: string) => {
-  return query('leaves/user?userId=' + userId);
+  return query('leaves?userId=' + userId);
 };
 
 export const createUser = (data: any) => {
@@ -121,9 +139,13 @@ export const adminUpdateUser = (data: any) => {
   return putMutation('users/admin', data);
 };
 
+export const createLeaveType = (data: any) => {
+  return postMutate('leavetypes', data);
+};
+
 // Reports
 export const getLeaves = (code: string) => {
-  return query('leaves?code=' + code);
+  return query('leaves?leaveTypeCode=' + code);
 };
 
 export const errorParser = (error: AxiosError) => {
@@ -136,10 +158,21 @@ export const errorParser = (error: AxiosError) => {
           location.href = '/landing';
         }
 
+        if (typeof data.response.message === 'object') {
+          data.response.message.map((message: string) =>
+            toast({
+              variant: 'destructive',
+              title: data.error,
+              description: message,
+            })
+          );
+          return;
+        }
+
         return toast({
           variant: 'destructive',
           title: data.error,
-          description: data.message,
+          description: data.response.message || data.message,
         });
       }
       for (const message in data.message) {

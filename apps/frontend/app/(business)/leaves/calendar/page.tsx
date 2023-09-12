@@ -2,11 +2,15 @@
 
 import { Calendar } from '@/components/ui/calendar';
 import { Select, SelectContent, SelectItem } from '@/components/ui/select';
-import { getUserLeaves, getUsers } from '@/lib/fetchers';
+import {
+  getFinYears,
+  getLeaveTypes,
+  getUserLeaves,
+  getUsers,
+} from '@/lib/fetchers';
 import { prepareUserLeaves } from '@/lib/helpers';
 import { queryClient } from '@/lib/providers/reactquery.provider';
 import { ILeave } from '@/lib/types/leave';
-import { IleaveTypeString, leaves } from '@/lib/types/leaveTypes';
 import { IUser } from '@/lib/types/user';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/state/auth.state';
@@ -22,9 +26,9 @@ const SelectUserTrigger = dynamic(
 
 const Year = () => {
   const user = useAuthStore((state) => state.user);
-  const [activeLeaveType, setActiveLeaveType] =
-    useState<IleaveTypeString>('CL');
+  const [activeLeaveType, setActiveLeaveType] = useState<string>();
   const [currentUser, setCurrentUser] = useState<Partial<IUser>>();
+  const [activeFinYear, setActiveFinYear] = useState<number>();
 
   // Set Default user
   useEffect(() => {
@@ -37,8 +41,34 @@ const Year = () => {
     queryKey: ['getUsers'],
   });
 
+  // Get leavetypes
+  const leaveTypes = useQuery({
+    queryKey: ['leaveTypes'],
+    queryFn: getLeaveTypes,
+    onSuccess: (data) => {
+      if (data.length > 0) {
+        setActiveLeaveType(data[0].code);
+      }
+    },
+  });
+
+  // Get financial Year
+  const finYears = useQuery({
+    queryFn: getFinYears,
+    queryKey: ['financialYears'],
+    onSuccess: (data) => {
+      for (const index in data) {
+        const finYear = data[index];
+        if (finYear.status === 'CURRENT') {
+          setActiveFinYear(finYear.finYearId);
+          break;
+        }
+      }
+    },
+  });
+
   // Perform a fetch
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryFn: async () => {
       const data = await getUserLeaves(currentUser!.userId!.toString());
       return data.data;
@@ -66,11 +96,16 @@ const Year = () => {
       <div className="min-w-400px flex h-full w-full flex-col border-0  sm:w-1/3 sm:border-r sm:p-3">
         {/* Select User */}
         <Select
+          disabled={leaveTypes.isLoading || isLoading}
           onValueChange={(val) => {
             setCurrentUser(JSON.parse(val));
           }}
         >
-          <SelectUserTrigger />
+          <SelectUserTrigger
+            placeholder={
+              leaveTypes.isLoading || isLoading ? 'Loading' : 'Select User'
+            }
+          />
           <SelectContent>
             {users.data &&
               users?.data.map((user: Partial<IUser>) => (
@@ -80,11 +115,37 @@ const Year = () => {
               ))}
           </SelectContent>
         </Select>
+        <span className="my-2" />
+        <Select
+          disabled={leaveTypes.isLoading || isLoading}
+          onValueChange={(val) => {
+            setActiveFinYear(Number(val));
+          }}
+        >
+          <SelectUserTrigger
+            placeholder={
+              finYears.isLoading ? 'Loading' : 'Select Financial Year'
+            }
+          />
+          <SelectContent>
+            {finYears.data &&
+              finYears?.data.map((finYear) => (
+                <SelectItem
+                  value={finYear.finYearId.toString()}
+                  key={finYear?.finYearId}
+                >
+                  {new Date(finYear.startDate).getFullYear() +
+                    '/' +
+                    new Date(finYear.endDate).getFullYear()}
+                </SelectItem>
+              ))}
+          </SelectContent>
+        </Select>
         {/* User summary */}
         <section className="mt-5 flex w-full flex-col gap-3 rounded-sm border sm:border-0 ">
           <header className="border-b p-3 text-lg font-bold">Summary</header>
-          <ul className="flex flex-col gap-3 p-3 hover:bg-background">
-            {leaves.map(({ code, name }, index) => (
+          <ul className="hover:bg-background flex flex-col gap-3 p-3">
+            {leaveTypes.data?.map(({ code, name }, index) => (
               <li
                 key={index}
                 className="flex items-center justify-between hover:cursor-pointer"
@@ -116,11 +177,11 @@ const Year = () => {
               </li>
             ))}
           </ul>
-          <span className="flex justify-between p-3">
+          {/* <span className="flex justify-between p-3">
             {' '}
             Remaining Leave Days:{' '}
             <span>{currentUser?.leaveRemaining ?? 0}</span>{' '}
-          </span>
+          </span> */}
         </section>
       </div>
 
@@ -131,7 +192,7 @@ const Year = () => {
             <Calendar
               showOutsideDays={false}
               month={new Date(new Date().setMonth(index + 5))}
-              className="my-3 shadow dark:shadow-foreground/10  "
+              className="dark:shadow-foreground/10 my-3 shadow  "
               cellColor={
                 activeLeaveType === 'PL'
                   ? 'bg-green-300'
@@ -148,7 +209,12 @@ const Year = () => {
               key={index}
               mode="multiple"
               disableNavigation={true}
-              selected={cachedSummary && cachedSummary[activeLeaveType].days}
+              selected={
+                (activeLeaveType &&
+                  cachedSummary &&
+                  cachedSummary[activeLeaveType].days) ||
+                []
+              }
             />
           ))}
         </ul>

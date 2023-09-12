@@ -2,20 +2,20 @@
 
 import { Icons } from '@/components/icons';
 import { siteConfig } from '@/config/site';
-import { getMe } from '@/lib/fetchers';
+import { getMasterData } from '@/lib/fetchers';
+import { queryClient } from '@/lib/providers/reactquery.provider';
+import { MasterData } from '@/lib/types/master';
 import { useAuthStore } from '@/state/auth.state';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react';
 
 const Home = () => {
   // If a user exists, redirect to a redirect else dashboard
-  // If no user and dev server, redirect to landing
-  // If on a prod server, try making a request to retrieve user
+  // If no user, try making a request to retrieve user
   // If auth errors on request, redirect to landing
 
   const router = useRouter();
   const { user, setUser } = useAuthStore((state) => state);
-  const isDev = process.env.NODE_ENV === 'development';
   const searchParams = useSearchParams();
   const search = searchParams.get('redirect');
 
@@ -26,28 +26,34 @@ const Home = () => {
       router.replace(siteConfig.nav.dashboard);
     }
   };
-  const handleGetUser = async () => {
-    const user = await getMe();
+  const handleGetMasterData = async () => {
+    const { user, leaveTypes, leaveBalances }: MasterData =
+      await getMasterData();
     setUser(user);
+
+    queryClient.setQueryData(['leaveTypes'], leaveTypes);
+
+    queryClient.setQueryData(['leaveBalances'], leaveBalances);
+
     handleRedirect();
   };
 
   useEffect(() => {
-    if (!user) {
-      if (isDev) {
-        router.replace(siteConfig.nav.landing);
-        return;
-      } else {
-        handleGetUser();
-      }
-    } else {
+    if (user) {
       handleRedirect();
+    } else {
+      try {
+        handleGetMasterData();
+      } catch (error) {
+        router.replace(siteConfig.nav.landing);
+      }
     }
   }, []);
 
   return (
-    <div className="flex h-full min-h-[600px] w-full items-center justify-center">
+    <div className="flex h-full min-h-[600px] w-full flex-col items-center justify-center gap-3">
       <Icons.spinner />
+      <span>fetching your details, just a sec...</span>
     </div>
   );
 };

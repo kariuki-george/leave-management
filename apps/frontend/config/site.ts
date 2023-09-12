@@ -15,10 +15,21 @@ export const siteConfig = {
       register: '/auth/getstarted',
       forgotPass: '/auth/forgotpass',
     },
-    year: '/year',
+
     dashboard: '/dashboard',
-    reports: '/reports',
-    admin: '/admin',
+
+    admin: {
+      users: '/admin/users',
+      holidays: '/admin/holidays',
+      leavetypes: '/admin/leavetypes',
+      finyear: '/admin/finyear',
+    },
     home: '/',
+    leaves: {
+      calendar: '/leaves/calendar',
+      compare: '/leaves/compare',
+      print: '/leaves/print',
+      apply: '/leaves',
+    },
   },
 };

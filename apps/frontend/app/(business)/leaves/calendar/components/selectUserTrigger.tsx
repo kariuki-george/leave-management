@@ -1,10 +1,14 @@
 import { SelectTrigger, SelectValue } from '@/components/ui/select';
 import React from 'react';
 
-const SelectUserTrigger = () => {
+interface Props {
+  placeholder: string;
+}
+
+const SelectUserTrigger = ({ placeholder }: Props) => {
   return (
     <SelectTrigger className="w-full" id="dmcidci">
-      <SelectValue placeholder="Select User" />
+      <SelectValue placeholder={placeholder} />
     </SelectTrigger>
   );
 };

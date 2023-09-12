@@ -44,7 +44,7 @@ export const LoginForm = () => {
         });
       }
 
-      router.replace(siteConfig.nav.dashboard);
+      router.replace(siteConfig.nav.home);
     },
   });
 
