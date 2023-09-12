@@ -17,13 +17,14 @@ import { adminUpdateUser } from '@/lib/fetchers';
 import { toast } from '@/components/ui/use-toast';
 import { queryClient } from '@/lib/providers/reactquery.provider';
 import { useAuthStore } from '@/state/auth.state';
-import { cn } from '@/lib/utils';
+import { IOffDay } from '@/lib/types/offDays';
+import { format } from 'date-fns';
 
 interface Props {
-  users: IUser[];
+  holidays: IOffDay[];
 }
 
-const RecentLeavesTable = ({ users }: Props) => {
+const HolidaysTable = ({ holidays }: Props) => {
   const currentUser = useAuthStore((state) => state.user);
   // Update user
   const [userId, setUserId] = useState(0);
@@ -42,32 +43,26 @@ const RecentLeavesTable = ({ users }: Props) => {
     mutate({ userId, isAdmin });
     setUserId(userId);
   };
+
   return (
     <Table className="mb-4 w-full min-w-[600px] overflow-x-auto">
-      <TableCaption>A list of all employees.</TableCaption>
+      <TableCaption>A list of all holidays.</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead>Employee Id</TableHead>
-          <TableHead>First Name</TableHead>
-          <TableHead>Last Name</TableHead>
-          <TableHead>Email</TableHead>
+          <TableHead>Name</TableHead>
+          <TableHead>Date - yyyy-mm-dd</TableHead>
+
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {users?.map((user: Partial<IUser>) => (
-          <TableRow key={user.userId}>
-            <TableCell className="font-medium">{user.userId!}</TableCell>
-            <TableCell>{user.firstName}</TableCell>
+        {holidays?.map(({ date, name, offDayId }) => (
+          <TableRow key={offDayId}>
+            <TableCell className="font-medium">{name}</TableCell>
+            <TableCell>{format(new Date(date), 'yyyy-MM-dd')}</TableCell>
 
-            <TableCell>{user.lastName}</TableCell>
-            <TableCell>{user.email ?? 'Not set yet'}</TableCell>
-            <TableCell
-              className={cn(
-                currentUser?.userId === user.userId ? 'hidden' : 'flex'
-              )}
-            >
-              {user.disabled ? (
+            <TableCell>
+              {/* {user.disabled ? (
                 <Button
                   isLoading={isLoading && user.userId === userId}
                   onClick={() => {
@@ -114,7 +109,7 @@ const RecentLeavesTable = ({ users }: Props) => {
                     disable
                   </Button>
                 </span>
-              )}
+              )} */}
             </TableCell>
           </TableRow>
         ))}
@@ -123,4 +118,4 @@ const RecentLeavesTable = ({ users }: Props) => {
   );
 };
 
-export default RecentLeavesTable;
+export default HolidaysTable;

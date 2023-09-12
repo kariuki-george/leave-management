@@ -77,7 +77,7 @@ export function UserNav() {
             <p className="text-sm font-medium leading-none">
               {state?.user?.firstName}
             </p>
-            <p className="text-muted-foreground text-xs leading-none">
+            <p className="text-xs leading-none text-muted-foreground">
               {state?.user?.email}
             </p>
           </div>
@@ -94,7 +94,7 @@ export function UserNav() {
 
           <Collapsible className="w-full">
             <CollapsibleTrigger className="w-full">
-              <span className="  focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center justify-between rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:cursor-pointer data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+              <span className="  relative flex cursor-default select-none items-center justify-between rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:cursor-pointer focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
                 <span className="flex">
                   {' '}
                   <BarChart4 className="mr-2 h-4 w-4" />
@@ -104,7 +104,7 @@ export function UserNav() {
                 <ChevronDown className="mr-2 h-4 w-4" />
               </span>
             </CollapsibleTrigger>
-            <CollapsibleContent className="bg-background flex w-full flex-col items-end ">
+            <CollapsibleContent className="flex w-full flex-col items-end bg-background ">
               {leaveRoutes.map((leaveRoute, index) => (
                 <Link key={index} href={leaveRoute.href} className=" w-[90%]  ">
                   <DropdownMenuItem key={index} className=" w-[90%]  ">
@@ -119,7 +119,7 @@ export function UserNav() {
           {state?.user?.isAdmin && (
             <Collapsible className="w-full">
               <CollapsibleTrigger className="w-full">
-                <span className="  focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center justify-between rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:cursor-pointer data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+                <span className="  relative flex cursor-default select-none items-center justify-between rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:cursor-pointer focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
                   <span className="flex">
                     <ShieldCheck className="mr-2 h-4 w-4" />
                     <span>Admin</span>
@@ -128,7 +128,7 @@ export function UserNav() {
                   <ChevronDown className="mr-2 h-4 w-4" />
                 </span>
               </CollapsibleTrigger>
-              <CollapsibleContent className="bg-background flex w-full flex-col items-end ">
+              <CollapsibleContent className="flex w-full flex-col items-end bg-background ">
                 {adminRoutes.map((adminRoute, index) => (
                   <Link
                     key={index}

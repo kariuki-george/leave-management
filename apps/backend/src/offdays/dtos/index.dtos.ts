@@ -1,7 +1,7 @@
-import { IsString } from 'class-validator';
+import { IsDateString, IsString } from 'class-validator';
 
 export class CreateOffDay {
-  @IsString()
+  @IsDateString()
   date: Date;
   @IsString()
   name: string;

@@ -2,7 +2,6 @@ import React from 'react';
 import LeavesCards from './components/leavesCards';
 import RecentLeavesTable from './components/recentLeavesTable';
 
-
 const Dashboard = () => {
   return (
     <div className="h-full w-full p-5 ">

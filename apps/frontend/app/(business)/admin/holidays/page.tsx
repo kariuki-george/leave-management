@@ -2,31 +2,31 @@
 
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import React from 'react';
-import UsersTable from './components/leaveTypesTable';
+import HolidaysTable from './components/holidaysTable';
 import { useQuery } from 'react-query';
-import { getAllUsers, getLeaveTypes } from '@/lib/fetchers';
+import { getOffDays } from '@/lib/fetchers';
 import dynamic from 'next/dynamic';
 import { Icons } from '@/components/icons';
 
-const NewUser = dynamic(() => import('./components/newLeaveTypeSheet'), {
+const NewHoliday = dynamic(() => import('./components/newHoliday'), {
   ssr: false,
   loading: () => <Icons.spinner />,
 });
 
-const Admin = () => {
+const HolidaysPage = () => {
   const { data } = useQuery({
-    queryFn: getLeaveTypes,
-    queryKey: ['leaveTypes'],
+    queryFn: getOffDays,
+    queryKey: ['offDays'],
   });
 
   return (
     <div className="h-screen  w-full p-5 ">
-      {/* Leaves dash */}
+      {/* Holidays dash */}
       <div className="flex w-full gap-3">
-        {/* Total leaves */}
+        {/* Total Holidays */}
         <Card className="flex w-full  max-w-[250px] flex-col items-center  justify-between">
           <CardHeader className="w-full border-b text-center">
-            All Leave Types
+            All Holidays
           </CardHeader>
           <CardDescription className="p-3 text-lg font-bold">
             {data?.length ?? 0}
@@ -34,16 +34,16 @@ const Admin = () => {
         </Card>
         <Card className="flex w-full  max-w-[250px] items-center justify-center">
           <CardDescription>
-            <NewUser />
+            <NewHoliday />
           </CardDescription>
         </Card>
       </div>
       {/* Latest leaves */}
       <div className="my-4  w-full overflow-auto rounded-sm border ">
-        <UsersTable leaveTypes={data || []} />
+        <HolidaysTable holidays={data || []} />
       </div>
     </div>
   );
 };
 
-export default Admin;
+export default HolidaysPage;

@@ -6,6 +6,7 @@ import { IUser } from '../types/user';
 import { IAnnualLeaveBalance, ILeaveBalances } from '../types/leaveBalances';
 import { ILeaveType } from '../types/leaveTypes';
 import { FinYear } from '../types/finyear';
+import { IOffDay } from '../types/offDays';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const isDev = process.env.NODE_ENV === 'development';
@@ -141,6 +142,15 @@ export const adminUpdateUser = (data: any) => {
 
 export const createLeaveType = (data: any) => {
   return postMutate('leavetypes', data);
+};
+
+export const getOffDays = async (): Promise<IOffDay[]> => {
+  const { data } = await query('offdays');
+  return data as IOffDay[];
+};
+
+export const createOffDay = (data: any) => {
+  return postMutate('offdays', data);
 };
 
 // Reports

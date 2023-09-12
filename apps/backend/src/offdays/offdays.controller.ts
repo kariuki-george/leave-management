@@ -21,13 +21,10 @@ export class OffdaysController {
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   createOffDay(@Body() input: CreateOffDay, @Req() req): Promise<OffDay> {
-    // Validate date
-
-    if (!input.date || new Date(input.date).toString() === 'Invalid Date') {
-      throw new BadRequestException('Please add a valid date');
-    }
-
-    return this.offDaysService.createOffDay(input, req.user.userId.toString());
+    return this.offDaysService.createOffDay(
+      { name: input.name, date: new Date(input.date) },
+      req.user.userId.toString()
+    );
   }
   @Get()
   @UseGuards(AuthGuard)

@@ -1,6 +1,5 @@
 import { eachDayOfInterval, isWeekend } from 'date-fns';
 import { ILeave } from '../types/leave';
-import { IleaveTypeString } from '../types/leaveTypes';
 
 const getWeekDays = (start: Date, end: Date): Date[] => {
   const allDates = eachDayOfInterval({
@@ -15,7 +14,7 @@ export function countWeekdays(startDate: Date, endDate: Date) {
 }
 
 type ISummary = {
-  [key in IleaveTypeString]: {
+  [key: string]: {
     total: number;
     days: Date[];
   };
@@ -47,10 +46,10 @@ export const prepareUserLeaves = (leaves: ILeave[]): ISummary => {
   }
 
   for (const key in summary) {
-    summary[key as IleaveTypeString] = {
-      total: summary[key as IleaveTypeString].days.length,
+    summary[key as string] = {
+      total: summary[key as string].days.length,
 
-      days: summary[key as IleaveTypeString].days,
+      days: summary[key as string].days,
     };
   }
 

@@ -1,4 +1,4 @@
-import {  ILeaveBalances } from './leaveBalances';
+import { ILeaveBalances } from './leaveBalances';
 import { ILeaveType } from './leaveTypes';
 import { IUser } from './user';
 

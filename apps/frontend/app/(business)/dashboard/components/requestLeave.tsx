@@ -9,7 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { leaves as leaveTypes } from '@/lib/types/leaveTypes';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -86,11 +85,11 @@ const RequestLeaveForm = () => {
     mutationKey: 'addLeave',
     onSuccess: ({ data }: { data: ILeaveWithUser }) => {
       toast({ title: 'Added your leave successfully!' });
-      setUser({
-        ...user!,
-        leaveRemaining:
-          data.users?.leaveRemaining ?? user?.leaveRemaining! - totalDays,
-      });
+      // setUser({
+      //   ...user!,
+      //   leaveRemaining:
+      //     data.users?.leaveRemaining ?? user?.leaveRemaining! - totalDays,
+      // });
       // To get the realtime update on the year page
       queryClient.invalidateQueries(['userLeaves', user?.userId]);
       queryClient.invalidateQueries(['recentLeaves']);
@@ -113,14 +112,14 @@ const RequestLeaveForm = () => {
       return;
     }
 
-    if (totalDays > user?.leaveRemaining!) {
-      toast({
-        variant: 'destructive',
-        title:
-          'Total number of days should be less than the number of remaining leaves',
-      });
-      return;
-    }
+    // if (totalDays > user?.leaveRemaining!) {
+    //   toast({
+    //     variant: 'destructive',
+    //     title:
+    //       'Total number of days should be less than the number of remaining leaves',
+    //   });
+    //   return;
+    // }
 
     mutate({
       totalDays,
@@ -138,11 +137,11 @@ const RequestLeaveForm = () => {
           <SelectValue placeholder="Select Leave Type" />
         </SelectTrigger>
         <SelectContent>
-          {leaveTypes.map((leave) => (
+          {/* {leaveTypes.map((leave) => (
             <SelectItem key={leave.code} value={leave.code}>
               {leave.name}
             </SelectItem>
-          ))}
+          ))} */}
         </SelectContent>
       </Select>
 
