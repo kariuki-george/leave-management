@@ -48,9 +48,10 @@ export class AuthService {
 
     // Check renewable leave days
     // const leaveDays = this.leaveBalancesService.renewLeaveDays(user);
-    const updatedUser: IUser = await this.usersService.updateUser(user.userId, {
-      jwtVersion: user.jwtVersion + 1,
-    });
+    const updatedUser: IUser = await this.usersService.updateUserAuth(
+      user.userId,
+      { jwtVersion: user.jwtVersion + 1 }
+    );
     // Create tokens
 
     const authToken = sign(
@@ -109,7 +110,7 @@ export class AuthService {
   }
 
   logout(userId: number) {
-    return this.usersService.updateUser(userId, { jwtVersion: 0 });
+    return this.usersService.updateUserAuth(userId, { jwtVersion: 0 });
   }
 
   async changePassword({ password, token }: ChangePasswordDto) {
@@ -139,7 +140,7 @@ export class AuthService {
     });
     let user;
     try {
-      user = await this.usersService.updateUser(payload.userId, {
+      user = await this.usersService.updateUserAuth(payload.userId, {
         password: newPass,
       });
     } catch (error) {

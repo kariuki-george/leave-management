@@ -31,7 +31,7 @@ import { IUser } from '@/lib/types/user';
 import { cn } from '@/lib/utils';
 
 interface Props {
-  user: IUser;
+  user?: IUser;
 }
 
 const NewUserForm = ({ user }: Props) => {

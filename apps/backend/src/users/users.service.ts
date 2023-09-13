@@ -124,6 +124,19 @@ export class UsersService {
     return this.cleanUser(user);
   }
 
+  async updateUserAuth(
+    userId: number,
+    { jwtVersion, password }: { jwtVersion?: number; password?: string }
+  ): Promise<IUser> {
+    const user = await this.dbService.users.update({
+      where: { userId },
+      data: { jwtVersion, password },
+    });
+    await this.invalidateCache(userId);
+
+    return this.cleanUser(user);
+  }
+
   async invalidateCache(userId: number) {
     return await this.cacheService.del('user-' + userId);
   }
