@@ -1,12 +1,13 @@
 'use client';
 
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import UsersTable from './components/usersTable';
 import { useQuery } from 'react-query';
 import { getAllUsers } from '@/lib/fetchers';
 import dynamic from 'next/dynamic';
 import { Icons } from '@/components/icons';
+import { Button } from '@/components/ui/button';
 
 const NewUser = dynamic(() => import('./components/newUserSheet'), {
   ssr: false,
@@ -14,10 +15,15 @@ const NewUser = dynamic(() => import('./components/newUserSheet'), {
 });
 
 const Admin = () => {
+  const [showActive, setShowActive] = useState<boolean>(true);
+  // const data = useFetchHook({ disabled: !showActive });
   const { data } = useQuery({
-    queryFn: getAllUsers,
-    queryKey: ['allUsers'],
+    queryFn: () => {
+      return getAllUsers(!showActive);
+    },
+    queryKey: ['allUsers', showActive],
   });
+
   return (
     <div className="h-screen  w-full p-5 ">
       {/* Leaves dash */}
@@ -34,6 +40,27 @@ const Admin = () => {
         <Card className="flex w-full  max-w-[250px] items-center justify-center">
           <CardDescription>
             <NewUser />
+          </CardDescription>
+        </Card>
+        <Card className="flex w-full  max-w-[250px] items-center justify-center">
+          {/* <CardHeader className="w-full border-b text-center">Show</CardHeader> */}
+          <CardDescription className="flex gap-3 p-3 text-lg">
+            <Button
+              onClick={() => {
+                setShowActive(true);
+              }}
+              variant={showActive ? 'destructive' : 'outline'}
+            >
+              active
+            </Button>
+            <Button
+              onClick={() => {
+                setShowActive(false);
+              }}
+              variant={!showActive ? 'destructive' : 'outline'}
+            >
+              disabled
+            </Button>
           </CardDescription>
         </Card>
       </div>

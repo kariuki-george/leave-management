@@ -119,8 +119,8 @@ export const getFinYears = async (): Promise<FinYear[]> => {
 };
 
 // Admin
-export const getAllUsers = async (): Promise<IUser[]> => {
-  const { data } = await query('users/all');
+export const getAllUsers = async (disabled: boolean): Promise<IUser[]> => {
+  const { data } = await query('users/all?disabled=' + disabled);
   return data as IUser[];
 };
 

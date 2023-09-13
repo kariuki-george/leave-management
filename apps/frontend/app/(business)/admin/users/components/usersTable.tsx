@@ -32,7 +32,7 @@ const RecentLeavesTable = ({ users }: Props) => {
     mutationFn: adminUpdateUser,
     onSuccess: () => {
       toast({ title: 'Updated user successfully!' });
-      queryClient.invalidateQueries({ queryKey: ['allUsers'] });
+      queryClient.invalidateQueries({ queryKey: ['allUsers', true] });
       setUserId(0);
     },
   });

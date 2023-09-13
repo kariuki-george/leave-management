@@ -38,7 +38,7 @@ const NewUserForm = ({ user }: Props) => {
   const { mutate, isLoading } = useMutation({
     mutationFn: createUser,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allUsers'] });
+      queryClient.invalidateQueries({ queryKey: ['allUsers', true] });
       toast({ title: 'Created employee successfully' });
     },
   });
@@ -47,7 +47,7 @@ const NewUserForm = ({ user }: Props) => {
     mutationFn: adminUpdateUser,
     onSuccess: () => {
       toast({ title: 'Updated user successfully!' });
-      queryClient.invalidateQueries({ queryKey: ['allUsers'] });
+      queryClient.invalidateQueries({ queryKey: ['allUsers', true] });
     },
   });
 

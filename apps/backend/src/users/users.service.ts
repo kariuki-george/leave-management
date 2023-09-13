@@ -175,8 +175,8 @@ export class UsersService {
     return users;
   }
 
-  async getAllUsers(_disabled: boolean): Promise<Partial<IUser>[]> {
-    return await this.dbService.users.findMany({
+  async getAllUsers(disabled: boolean): Promise<Partial<IUser>[]> {
+    return this.dbService.users.findMany({
       select: {
         firstName: true,
         lastName: true,
@@ -186,7 +186,7 @@ export class UsersService {
         gender: true,
         isAdmin: true,
       },
-      // where: { disabled },
+      where: { disabled },
     });
   }
 
