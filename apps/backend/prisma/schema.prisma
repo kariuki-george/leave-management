@@ -14,6 +14,7 @@ model LeaveTypes {
   updatedAt          DateTime @default(now()) @updatedAt
   isAnnualLeaveBased Boolean  @default(true)
   maxDays            Int?     @default(0)
+  disabled Boolean @default(false)
   leaves             Leaves[]
   leaveBalances LeaveBalances[]
 }
@@ -77,6 +78,8 @@ model OffDays {
   date      DateTime
   name      String
   author    String?
+  disabled Boolean @default(false)
+  recurring Boolean @default(false)
 
   @@unique([date, name])
 }

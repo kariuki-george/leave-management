@@ -27,6 +27,16 @@ export class OffdaysService {
     return this.dbService.offDays.findMany();
   }
 
+  updateOffDay(
+    offDayId: number,
+    { date, name, disabled, recurring }: Partial<OffDay>
+  ): Promise<OffDay> {
+    return this.dbService.offDays.update({
+      where: { offDayId },
+      data: { date, name, disabled, recurring },
+    });
+  }
+
   // Autogenerate new offdays for a new Fin year
   async autoGenOffDays() {
     const offDays = await this.genericOffDays();

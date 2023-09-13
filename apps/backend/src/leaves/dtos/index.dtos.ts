@@ -1,5 +1,6 @@
 // LEAVETYPES
 
+import { PartialType } from '@nestjs/mapped-types';
 import {
   IsBoolean,
   IsIn,
@@ -20,6 +21,14 @@ export class CreateLeaveTypeDto {
   @IsPositive()
   @IsOptional()
   maxDays: number;
+}
+
+export class UpdateLeaveTypeDto extends PartialType(CreateLeaveTypeDto) {
+  @IsBoolean()
+  @IsOptional()
+  disabled?: boolean;
+  @IsString()
+  code: string;
 }
 
 export class CreateLeaveDto {

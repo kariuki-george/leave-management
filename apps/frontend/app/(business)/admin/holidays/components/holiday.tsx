@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
 import * as z from 'zod';
 
-import { createOffDay } from '@/lib/fetchers';
+import { createOffDay, updateOffDay } from '@/lib/fetchers';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -28,6 +28,7 @@ import {
 import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { IOffDay } from '@/lib/types/offDays';
+import { Switch } from '@/components/ui/switch';
 
 interface Props {
   offDay?: IOffDay;
@@ -42,14 +43,27 @@ const HolidayForm = ({ offDay }: Props) => {
     },
   });
 
+  const updateHoliday = useMutation({
+    mutationFn: updateOffDay,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['offDays'] });
+      toast({ title: 'Updated holiday successfully' });
+    },
+  });
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     if (offDay) {
-      // Update
+      updateHoliday.mutate({
+        ...values,
+        offDayId: offDay.offDayId,
+        recurring: Boolean(values.recurring),
+      });
       return;
     }
     createHoliday.mutate({
       name: values.name,
       date: format(values.date, 'yyyy-MM-dd'),
+      recurring: Boolean(values.recurring),
     });
   }
 
@@ -58,14 +72,18 @@ const HolidayForm = ({ offDay }: Props) => {
   const formSchema = z.object({
     name: z.string().min(3),
     date: z.date().min(startOfTomorrow()),
+    recurring: z.boolean(),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: offDay?.name ?? '',
-      date: offDay?.date ?? startOfTomorrow(),
-    },
+    defaultValues: offDay
+      ? formSchema.parse({
+          name: offDay?.name,
+          date: new Date(offDay?.date),
+          recurring: offDay.recurring,
+        })
+      : { name: '', date: startOfTomorrow(), recurring: false },
   });
 
   return (
@@ -106,7 +124,7 @@ const HolidayForm = ({ offDay }: Props) => {
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {field.value ? (
-                          format(field.value, 'PPP')
+                          format(new Date(field.value), 'PPP')
                         ) : (
                           <span className="w-full">Pick the Date</span>
                         )}
@@ -129,11 +147,31 @@ const HolidayForm = ({ offDay }: Props) => {
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="recurring"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+              <div className="space-y-0.5">
+                <FormLabel>Recurring</FormLabel>
+                <FormDescription>
+                  Does the holiday occur every year!
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
 
         <Button
           className="w-full"
           type="submit"
-          isLoading={createHoliday.isLoading}
+          isLoading={createHoliday.isLoading || updateHoliday.isLoading}
         >
           Submit
         </Button>

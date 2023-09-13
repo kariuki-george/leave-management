@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
 import * as z from 'zod';
 
-import { createUser } from '@/lib/fetchers';
+import { adminUpdateUser, createUser } from '@/lib/fetchers';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -27,8 +27,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { IUser } from '@/lib/types/user';
+import { cn } from '@/lib/utils';
 
-const NewUserForm = () => {
+interface Props {
+  user: IUser;
+}
+
+const NewUserForm = ({ user }: Props) => {
   const { mutate, isLoading } = useMutation({
     mutationFn: createUser,
     onSuccess: () => {
@@ -37,7 +43,23 @@ const NewUserForm = () => {
     },
   });
 
+  const updateUserFunc = useMutation({
+    mutationFn: adminUpdateUser,
+    onSuccess: () => {
+      toast({ title: 'Updated user successfully!' });
+      queryClient.invalidateQueries({ queryKey: ['allUsers'] });
+    },
+  });
+
   function onSubmit(values: z.infer<typeof formSchema>) {
+    if (user) {
+      updateUserFunc.mutate({
+        ...values,
+        employeeId: Number(values.employeeId),
+      });
+
+      return;
+    }
     mutate({ ...values, employeeId: Number(values.employeeId) });
   }
 
@@ -53,13 +75,21 @@ const NewUserForm = () => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      employeeId: '',
-      firstName: '',
-      lastName: '',
-      isAdmin: false,
-      gender: 'M',
-    },
+    defaultValues: user
+      ? formSchema.parse({
+          employeeId: user.userId.toString(),
+          firstName: user.firstName,
+          lastName: user.lastName,
+          isAdmin: user.isAdmin,
+          gender: user.gender,
+        })
+      : {
+          employeeId: '',
+          firstName: '',
+          lastName: '',
+          isAdmin: false,
+          gender: 'M',
+        },
   });
 
   return (
@@ -77,9 +107,10 @@ const NewUserForm = () => {
               <FormControl>
                 <Input
                   type="number"
-                  className="h-12"
+                  value={Number(field.value)}
                   placeholder="0000000000"
-                  {...field}
+                  className={cn('h-12', Boolean(user) && ' cursor-not-allowed')}
+                  onChange={Boolean(user) ? () => {} : field.onChange}
                 />
               </FormControl>
               <FormDescription>This is the employee Id.</FormDescription>
@@ -159,7 +190,11 @@ const NewUserForm = () => {
           )}
         />
 
-        <Button className="w-full" type="submit" isLoading={isLoading}>
+        <Button
+          className="w-full"
+          type="submit"
+          isLoading={isLoading || updateUserFunc.isLoading}
+        >
           Submit
         </Button>
       </form>

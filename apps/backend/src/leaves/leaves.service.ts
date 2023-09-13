@@ -165,6 +165,18 @@ export class LeavesService {
     return leaves;
   }
 
+  // async getUsersWithLeaves() {
+  //   console.log(
+  //     await this.dbService.users.findMany({
+  //       include: {
+  //         leaves: {
+  //           include: { finYear :true,leaveTypes:true},
+  //         },
+  //       },
+  //     })
+  //   );
+  // }
+
   // Validate the dates are within the financial year
   private async validateLeaveDates(
     startDate: Date,

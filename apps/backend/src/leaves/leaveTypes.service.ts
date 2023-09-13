@@ -6,7 +6,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { CreateLeaveTypeDto } from './dtos/index.dtos';
+import { CreateLeaveTypeDto, UpdateLeaveTypeDto } from './dtos/index.dtos';
 import { ILeaveType } from './models/index.models';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -69,5 +69,17 @@ export class LeaveTypesService {
     });
     await this.cacheService.set('leaveType' + code, leaveType);
     return leaveType;
+  }
+
+  async updateLeaveType(
+    leaveTypeCode: string,
+    { disabled, isAnnualLeaveBased, name, maxDays }: UpdateLeaveTypeDto
+  ): Promise<ILeaveType> {
+    await this.cacheService.del('leaveTypes');
+
+    return this.dbService.leaveTypes.update({
+      where: { code: leaveTypeCode },
+      data: { disabled, isAnnualLeaveBased, name, maxDays },
+    });
   }
 }

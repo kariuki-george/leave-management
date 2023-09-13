@@ -11,37 +11,31 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { IUser } from '@/lib/types/user';
 import { useMutation } from 'react-query';
-import { adminUpdateUser } from '@/lib/fetchers';
+import { updateOffDay } from '@/lib/fetchers';
 import { toast } from '@/components/ui/use-toast';
 import { queryClient } from '@/lib/providers/reactquery.provider';
-import { useAuthStore } from '@/state/auth.state';
 import { IOffDay } from '@/lib/types/offDays';
 import { format } from 'date-fns';
+import UpdateLeaveTypeSheet from './updateHoliday';
 
 interface Props {
   holidays: IOffDay[];
 }
 
 const HolidaysTable = ({ holidays }: Props) => {
-  const currentUser = useAuthStore((state) => state.user);
-  // Update user
-  const [userId, setUserId] = useState(0);
+  // Update holiday
+  const [currentOffDayId, setOffDayId] = useState(0);
   const { isLoading, mutate } = useMutation({
-    mutationFn: adminUpdateUser,
+    mutationFn: updateOffDay,
     onSuccess: () => {
-      toast({ title: 'Updated user successfully!' });
-      queryClient.invalidateQueries({ queryKey: ['allUsers'] });
-      setUserId(0);
+      setOffDayId(0);
+      queryClient.invalidateQueries({ queryKey: ['offDays'] });
+      toast({ title: 'Updated holiday successfully' });
     },
   });
-  const handleDisabled = (userId: number, toDisable: boolean) => {
-    mutate({ userId, disabled: toDisable });
-  };
-  const handleIsAdmin = (userId: number, isAdmin: boolean) => {
-    mutate({ userId, isAdmin });
-    setUserId(userId);
+  const handleDisabled = (offDayId: number, toDisable: boolean) => {
+    mutate({ offDayId, disabled: toDisable });
   };
 
   return (
@@ -51,68 +45,62 @@ const HolidaysTable = ({ holidays }: Props) => {
         <TableRow>
           <TableHead>Name</TableHead>
           <TableHead>Date - yyyy-mm-dd</TableHead>
+          <TableHead>Recurring</TableHead>
 
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {holidays?.map(({ date, name, offDayId }) => (
-          <TableRow key={offDayId}>
-            <TableCell className="font-medium">{name}</TableCell>
-            <TableCell>{format(new Date(date), 'yyyy-MM-dd')}</TableCell>
+        {holidays?.map(
+          ({ date, name, offDayId, createdAt, disabled, recurring }) => (
+            <TableRow key={offDayId}>
+              <TableCell className="font-medium">{name}</TableCell>
+              <TableCell>{format(new Date(date), 'yyyy-MM-dd')}</TableCell>
+              <TableCell>{recurring ? 'YES' : 'NO'}</TableCell>
 
-            <TableCell>
-              {/* {user.disabled ? (
-                <Button
-                  isLoading={isLoading && user.userId === userId}
-                  onClick={() => {
-                    handleDisabled(user?.userId!, false);
-                  }}
-                  className="-m-1"
-                  variant={'outline'}
-                >
-                  enable
-                </Button>
-              ) : (
-                <span className="flex gap-3">
-                  {user.isAdmin ? (
-                    <Button
-                      isLoading={isLoading && user.userId === userId}
-                      onClick={() => {
-                        handleIsAdmin(user?.userId!, false);
-                      }}
-                      className="-m-1"
-                      variant={'secondary'}
-                    >
-                      Revoke admin
-                    </Button>
-                  ) : (
-                    <Button
-                      isLoading={isLoading && user.userId === userId}
-                      onClick={() => {
-                        handleIsAdmin(user?.userId!, true);
-                      }}
-                      className="-m-1"
-                      variant={'secondary'}
-                    >
-                      Become admin
-                    </Button>
-                  )}
+              <TableCell>
+                {disabled ? (
                   <Button
-                    isLoading={isLoading && user.userId === userId}
+                    isLoading={isLoading && offDayId === currentOffDayId}
                     onClick={() => {
-                      handleDisabled(user?.userId!, true);
+                      setOffDayId(offDayId);
+                      handleDisabled(offDayId, false);
                     }}
                     className="-m-1"
                     variant={'destructive'}
                   >
-                    disable
+                    Enable
                   </Button>
-                </span>
-              )} */}
-            </TableCell>
-          </TableRow>
-        ))}
+                ) : (
+                  <span className="flex gap-3">
+                    <UpdateLeaveTypeSheet
+                      offDay={{
+                        createdAt,
+                        date,
+                        name,
+                        offDayId,
+                        disabled,
+                        recurring,
+                      }}
+                    />
+                    <Button
+                      isLoading={isLoading && offDayId === currentOffDayId}
+                      onClick={() => {
+                        setOffDayId(offDayId);
+
+                        handleDisabled(offDayId, true);
+                      }}
+                      className="-m-1"
+                      variant={'destructive'}
+                    >
+                      Disable
+                    </Button>{' '}
+                  </span>
+                )}
+              </TableCell>
+            </TableRow>
+          )
+        )}
       </TableBody>
     </Table>
   );

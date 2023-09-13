@@ -10,6 +10,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { Gender } from '@prisma/client';
+import { PartialType } from '@nestjs/mapped-types';
 
 export class AssignUserDto {
   @IsEmail()
@@ -37,13 +38,10 @@ export class CreateUserDto {
   gender: Gender;
 }
 
-export class AdminUpdateUserDto {
+export class AdminUpdateUserDto extends PartialType(CreateUserDto) {
   @IsInt()
-  userId: number;
+  employeeId: number;
   @IsBoolean()
   @IsOptional()
   disabled: boolean;
-  @IsBoolean()
-  @IsOptional()
-  isAdmin: boolean;
 }

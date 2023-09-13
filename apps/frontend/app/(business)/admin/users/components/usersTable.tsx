@@ -18,6 +18,7 @@ import { toast } from '@/components/ui/use-toast';
 import { queryClient } from '@/lib/providers/reactquery.provider';
 import { useAuthStore } from '@/state/auth.state';
 import { cn } from '@/lib/utils';
+import UpdateUserSheet from './updateUserSheet';
 
 interface Props {
   users: IUser[];
@@ -36,12 +37,9 @@ const RecentLeavesTable = ({ users }: Props) => {
     },
   });
   const handleDisabled = (userId: number, toDisable: boolean) => {
-    mutate({ userId, disabled: toDisable });
+    mutate({ employeeId: userId, disabled: toDisable });
   };
-  const handleIsAdmin = (userId: number, isAdmin: boolean) => {
-    mutate({ userId, isAdmin });
-    setUserId(userId);
-  };
+
   return (
     <Table className="mb-4 w-full min-w-[600px] overflow-x-auto">
       <TableCaption>A list of all employees.</TableCaption>
@@ -51,17 +49,21 @@ const RecentLeavesTable = ({ users }: Props) => {
           <TableHead>First Name</TableHead>
           <TableHead>Last Name</TableHead>
           <TableHead>Email</TableHead>
+          <TableHead>Gender</TableHead>
+          <TableHead>Admin</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {users?.map((user: Partial<IUser>) => (
+        {users?.map((user: IUser) => (
           <TableRow key={user.userId}>
             <TableCell className="font-medium">{user.userId!}</TableCell>
             <TableCell>{user.firstName}</TableCell>
 
             <TableCell>{user.lastName}</TableCell>
             <TableCell>{user.email ?? 'Not set yet'}</TableCell>
+            <TableCell>{user.gender}</TableCell>
+            <TableCell>{user.isAdmin ? 'YES' : 'NO'}</TableCell>
             <TableCell
               className={cn(
                 currentUser?.userId === user.userId ? 'hidden' : 'flex'
@@ -80,29 +82,8 @@ const RecentLeavesTable = ({ users }: Props) => {
                 </Button>
               ) : (
                 <span className="flex gap-3">
-                  {user.isAdmin ? (
-                    <Button
-                      isLoading={isLoading && user.userId === userId}
-                      onClick={() => {
-                        handleIsAdmin(user?.userId!, false);
-                      }}
-                      className="-m-1"
-                      variant={'secondary'}
-                    >
-                      Revoke admin
-                    </Button>
-                  ) : (
-                    <Button
-                      isLoading={isLoading && user.userId === userId}
-                      onClick={() => {
-                        handleIsAdmin(user?.userId!, true);
-                      }}
-                      className="-m-1"
-                      variant={'secondary'}
-                    >
-                      Become admin
-                    </Button>
-                  )}
+                  <UpdateUserSheet user={user} />
+
                   <Button
                     isLoading={isLoading && user.userId === userId}
                     onClick={() => {

@@ -9,7 +9,7 @@ import {
 import dynamic from 'next/dynamic';
 import { Icons } from '@/components/icons';
 
-const NewUserForm = dynamic(() => import('./newUserForm'), {
+const NewUserForm = dynamic(() => import('./userForm'), {
   ssr: false,
   loading: () => <Icons.spinner />,
 });

@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useMutation } from 'react-query';
 import * as z from 'zod';
 
-import { createLeaveType } from '@/lib/fetchers';
+import { createLeaveType, updateLeaveType } from '@/lib/fetchers';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -21,6 +21,7 @@ import { toast } from '@/components/ui/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { queryClient } from '@/lib/providers/reactquery.provider';
 import { ILeaveType } from '@/lib/types/leaveTypes';
+import { cn } from '@/lib/utils';
 
 interface Props {
   leaveType?: ILeaveType;
@@ -35,12 +36,26 @@ const LeaveTypeForm = ({ leaveType }: Props) => {
     },
   });
 
+  const updateLeaveTypeFunc = useMutation({
+    mutationFn: updateLeaveType,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leaveTypes'] });
+      toast({ title: 'Updated leaveType successfully' });
+    },
+  });
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     if (leaveType) {
-      // Update
+      updateLeaveTypeFunc.mutate({
+        ...values,
+        isAnnualLeaveBased: Boolean(values.isAnnualLeaveBased),
+      });
       return;
     }
-    mutate(values);
+    mutate({
+      ...values,
+      isAnnualLeaveBased: Boolean(values.isAnnualLeaveBased),
+    });
   }
 
   // Define form and validation
@@ -54,12 +69,19 @@ const LeaveTypeForm = ({ leaveType }: Props) => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: leaveType?.name ?? '',
-      maxDays: leaveType?.maxDays ?? 1,
-      code: leaveType?.code ?? '',
-      isAnnualLeaveBased: leaveType?.isAnnualLeaveBased ?? true,
-    },
+    defaultValues: leaveType
+      ? formSchema.parse({
+          name: leaveType.name,
+          code: leaveType.code,
+          isAnnualLeaveBased: leaveType.isAnnualLeaveBased,
+          maxDays: leaveType.maxDays || 10,
+        })
+      : {
+          name: '',
+          maxDays: 1,
+          code: '',
+          isAnnualLeaveBased: true,
+        },
   });
 
   return (
@@ -82,6 +104,7 @@ const LeaveTypeForm = ({ leaveType }: Props) => {
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="code"
@@ -89,7 +112,15 @@ const LeaveTypeForm = ({ leaveType }: Props) => {
             <FormItem>
               <FormLabel>Code</FormLabel>
               <FormControl>
-                <Input className="h-12" placeholder="SL" {...field} />
+                <Input
+                  placeholder="SL"
+                  {...field}
+                  className={cn(
+                    'h-12',
+                    Boolean(leaveType) && ' cursor-not-allowed'
+                  )}
+                  onChange={Boolean(leaveType) ? () => {} : field.onChange}
+                />
               </FormControl>
 
               <FormMessage />
@@ -119,8 +150,8 @@ const LeaveTypeForm = ({ leaveType }: Props) => {
         />
         <FormField
           control={form.control}
-          disabled={form.getValues().isAnnualLeaveBased}
           name="maxDays"
+          disabled={form.getValues().isAnnualLeaveBased}
           render={({ field }) => (
             <FormItem>
               <FormLabel>MaxDays</FormLabel>
@@ -138,7 +169,11 @@ const LeaveTypeForm = ({ leaveType }: Props) => {
           )}
         />
 
-        <Button className="w-full" type="submit" isLoading={isLoading}>
+        <Button
+          className="w-full"
+          type="submit"
+          isLoading={isLoading || updateLeaveTypeFunc.isLoading}
+        >
           Submit
         </Button>
       </form>

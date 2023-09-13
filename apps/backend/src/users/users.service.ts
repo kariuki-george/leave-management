@@ -6,7 +6,11 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { AssignUserDto, CreateUserDto } from './dtos/index.dtos';
+import {
+  AdminUpdateUserDto,
+  AssignUserDto,
+  CreateUserDto,
+} from './dtos/index.dtos';
 import { PrismaService } from '@db';
 import { IUser } from './models/index.models';
 import * as argon from 'argon2';
@@ -107,10 +111,13 @@ export class UsersService {
 
   // Only the admin can perform updateUser operation. To add update user to individual users ontop of admin,
   // Beware of the input not being validated vulnerability.
-  async updateUser(userId: number, input: Partial<Users>): Promise<IUser> {
+  async updateUser(
+    userId: number,
+    { disabled, isAdmin, firstName, lastName, gender }: AdminUpdateUserDto
+  ): Promise<IUser> {
     const user = await this.dbService.users.update({
       where: { userId },
-      data: input,
+      data: { disabled, isAdmin, firstName, lastName, gender },
     });
     await this.invalidateCache(userId);
 
@@ -159,6 +166,7 @@ export class UsersService {
         lastName: true,
         userId: true,
         email: true,
+        gender: true,
       },
       where: filter,
     });
@@ -167,7 +175,7 @@ export class UsersService {
     return users;
   }
 
-  async getAllUsers(disabled: boolean): Promise<Partial<IUser>[]> {
+  async getAllUsers(_disabled: boolean): Promise<Partial<IUser>[]> {
     return await this.dbService.users.findMany({
       select: {
         firstName: true,
@@ -175,9 +183,10 @@ export class UsersService {
         userId: true,
         email: true,
         disabled: true,
+        gender: true,
         isAdmin: true,
       },
-      where: { disabled },
+      // where: { disabled },
     });
   }
 

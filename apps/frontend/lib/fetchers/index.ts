@@ -153,6 +153,16 @@ export const createOffDay = (data: any) => {
   return postMutate('offdays', data);
 };
 
+export const updateOffDay = async (data: any) => {
+  const res = await putMutation('offdays', data);
+  return res.data;
+};
+
+export const updateLeaveType = async (data: any) => {
+  const res = await putMutation('leavetypes', data);
+  return res.data;
+};
+
 // Reports
 export const getLeaves = (code: string) => {
   return query('leaves?leaveTypeCode=' + code);

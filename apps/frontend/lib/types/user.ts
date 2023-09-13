@@ -6,4 +6,5 @@ export interface IUser {
   jwtVersion: number;
   disabled?: boolean;
   isAdmin?: boolean;
+  gender: 'M' | 'F';
 }

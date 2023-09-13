@@ -5,11 +5,12 @@ import {
   Get,
   HttpCode,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { LeaveTypesService } from './leaveTypes.service';
 import { ILeaveType } from './models/index.models';
-import { CreateLeaveTypeDto } from './dtos/index.dtos';
+import { CreateLeaveTypeDto, UpdateLeaveTypeDto } from './dtos/index.dtos';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { RolesGuard } from 'src/roles/guards/roles.guards';
 
@@ -32,6 +33,7 @@ export class LeaveTypesController {
         );
       }
     }
+
     return this.leaveTypesService.createLeaveType(input);
   }
 
@@ -39,5 +41,17 @@ export class LeaveTypesController {
   @UseGuards(AuthGuard)
   getAll(): Promise<ILeaveType[]> {
     return this.leaveTypesService.getAll();
+  }
+  @Put()
+  @UseGuards(AuthGuard, RolesGuard)
+  updateLeaveType(@Body() input: UpdateLeaveTypeDto): Promise<ILeaveType> {
+    if (input.isAnnualLeaveBased) {
+      input.maxDays = 0;
+    }
+    if (input.maxDays) {
+      input.isAnnualLeaveBased = false;
+    }
+
+    return this.leaveTypesService.updateLeaveType(input.code, input);
   }
 }

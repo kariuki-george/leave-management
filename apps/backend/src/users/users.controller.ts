@@ -55,11 +55,9 @@ export class UsersController {
 
   @Put('/admin')
   @UseGuards(AuthGuard, RolesGuard)
-  disableUser(@Body() input: AdminUpdateUserDto) {
-    return this.usersService.updateUser(input.userId, {
-      ...input,
-      isAdmin: input.disabled ? false : input.isAdmin,
-    });
+  updateUser(@Body() input: AdminUpdateUserDto) {
+    if (input.disabled) input.isAdmin = false;
+    return this.usersService.updateUser(input.employeeId, input);
   }
 
   @Get('me')
