@@ -92,10 +92,6 @@ export const getRecentLeaves = () => {
   return query('leaves?limit=10');
 };
 
-export const addLeave = (data: any) => {
-  return postMutate('leaves', data);
-};
-
 export const getLeaveBalances = async () => {
   const data = await query('leaveBalances');
   return data.data as ILeaveBalances;
@@ -116,6 +112,14 @@ export const getLeaveTypes = async (): Promise<ILeaveType[]> => {
 export const getFinYears = async (): Promise<FinYear[]> => {
   const { data } = await query('finyears');
   return data as FinYear[];
+};
+
+export const addLeave = (data: any) => {
+  return postMutate('leaves', data);
+};
+
+export const checkLeave = (data: any) => {
+  return postMutate('leaves/check', data);
 };
 
 // Admin

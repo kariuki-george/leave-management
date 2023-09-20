@@ -38,8 +38,6 @@ export class CreateLeaveDto {
   endDate: Date;
   @IsString()
   code: string;
-  @IsInt()
-  totalDays: number;
 }
 
 export class IGetLeavesFilterDto {

@@ -7,5 +7,6 @@ import { FinyearModule } from 'src/finyear/finyear.module';
   providers: [OffdaysService],
   controllers: [OffdaysController],
   imports: [FinyearModule],
+  exports: [OffdaysService],
 })
 export class OffdaysModule {}

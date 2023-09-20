@@ -5,6 +5,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateLeaveTypeDto, UpdateLeaveTypeDto } from './dtos/index.dtos';
 import { ILeaveType } from './models/index.models';
@@ -54,6 +55,7 @@ export class LeaveTypesService {
       return leaveTypes;
     }
     leaveTypes = await this.dbService.leaveTypes.findMany();
+
     await this.cacheService.set('leaveTypes', leaveTypes);
     return leaveTypes;
   }
@@ -67,6 +69,9 @@ export class LeaveTypesService {
     leaveType = await this.dbService.leaveTypes.findUnique({
       where: { code },
     });
+    if (!leaveType) {
+      throw new NotFoundException('LeaveType not found');
+    }
     await this.cacheService.set('leaveType' + code, leaveType);
     return leaveType;
   }

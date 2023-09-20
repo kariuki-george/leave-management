@@ -36,3 +36,12 @@ export class IUserLeaveBalance {
   leaveBalances: ILeaveBalance[];
   annualLeaveBalance: Partial<ILeaveBalance>;
 }
+
+export class ICheckLeaveConfig {
+  totalDays: number;
+  usersOnLeave: ILeaveWithUser[];
+  leaveType: ILeaveType;
+  endDate: Date;
+  startDate: Date;
+  finYearId: number;
+}

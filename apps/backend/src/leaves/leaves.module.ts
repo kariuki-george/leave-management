@@ -7,10 +7,11 @@ import { UsersModule } from 'src/users/users.module';
 import { FinyearModule } from 'src/finyear/finyear.module';
 import { LeaveBalancesService } from './leaveBalances.service';
 import { LeaveBalancesController } from './leaveBalances.controller';
+import { OffdaysModule } from 'src/offdays/offdays.module';
 
 @Module({
   providers: [LeaveTypesService, LeavesService, LeaveBalancesService],
-  imports: [UsersModule, FinyearModule],
+  imports: [UsersModule, FinyearModule, OffdaysModule],
   controllers: [
     LeaveTypesController,
     LeavesController,

@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { LeavesService } from './leaves.service';
 import { CreateLeaveDto } from './dtos/index.dtos';
-import { ILeaveWithUser } from './models/index.models';
+import { ICheckLeaveConfig, ILeaveWithUser } from './models/index.models';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('leaves')
@@ -38,6 +38,28 @@ export class LeavesController {
     return this.leavesService.createLeave(
       { ...input, endDate, startDate },
       req.user
+    );
+  }
+  @Post('check')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  checkLeave(
+    @Body() input: CreateLeaveDto,
+    @Req() req
+  ): Promise<ICheckLeaveConfig> {
+    const startDate = new Date(input.startDate);
+    const endDate = new Date(input.endDate);
+
+    if (
+      startDate.toString() === 'Invalid Date' ||
+      endDate.toString() === 'Invalid Date'
+    ) {
+      throw new BadRequestException('Invalid dates provided');
+    }
+
+    return this.leavesService.checkLeaveConfig(
+      { ...input, endDate, startDate },
+      req.user.userId
     );
   }
 

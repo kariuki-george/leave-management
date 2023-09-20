@@ -41,7 +41,7 @@ const RecentLeavesTable = ({ users }: Props) => {
   };
 
   return (
-    <Table className="mb-4 w-full min-w-[600px] overflow-x-auto">
+    <Table className="mb-4 w-full min-w-[600px] overflow-x-auto ">
       <TableCaption>A list of all employees.</TableCaption>
       <TableHeader>
         <TableRow>

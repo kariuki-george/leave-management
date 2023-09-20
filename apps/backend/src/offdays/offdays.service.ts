@@ -24,7 +24,17 @@ export class OffdaysService {
   }
 
   getOffDays(): Promise<OffDay[]> {
-    return this.dbService.offDays.findMany();
+    return this.dbService.offDays.findMany({ where: {} });
+  }
+
+  async getOffDaysMap(finYearId: number): Promise<Map<string, OffDay>> {
+    const offDays = await this.getOffDays();
+    const map = new Map<string, OffDay>();
+    for (const m in offDays) {
+      const offDay = offDays[m];
+      map.set(new Date(offDay.date).toDateString(), offDay);
+    }
+    return map;
   }
 
   updateOffDay(

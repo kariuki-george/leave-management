@@ -25,14 +25,9 @@ export class LeaveBalancesService {
     totalDays: number,
 
     userId: number,
-    leaveType: ILeaveType
+    leaveType: ILeaveType,
+    finYearId: number
   ): Promise<boolean> => {
-    if (!leaveType) {
-      throw new NotFoundException('LeaveType provided not found');
-    }
-
-    const { finYearId } = await this.finYearService.getCurrentFinYear();
-
     let remainingDays = 0;
     if (leaveType.isAnnualLeaveBased) {
       // Calc the total

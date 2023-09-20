@@ -6,7 +6,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { ILeave, ILeaveWithUser } from './models/index.models';
+import { ICheckLeaveConfig, ILeaveWithUser } from './models/index.models';
 import { CreateLeaveDto, IGetLeavesFilterDto } from './dtos/index.dtos';
 import { IUser } from 'src/users/models/index.models';
 import { UsersService } from 'src/users/users.service';
@@ -16,6 +16,8 @@ import { SharedService } from 'src/shared/shared.service';
 import { LeaveTypesService } from './leaveTypes.service';
 import { FinyearService } from 'src/finyear/finyear.service';
 import { LeaveBalancesService } from './leaveBalances.service';
+import { eachDayOfInterval, isWeekend } from 'date-fns';
+import { OffdaysService } from 'src/offdays/offdays.service';
 
 @Injectable()
 export class LeavesService {
@@ -27,36 +29,16 @@ export class LeavesService {
     private readonly sharedService: SharedService,
     private readonly leaveTypesService: LeaveTypesService,
     private readonly finYearService: FinyearService,
-    private readonly leaveBalancesService: LeaveBalancesService
+    private readonly leaveBalancesService: LeaveBalancesService,
+    private readonly offDaysService: OffdaysService
   ) {}
 
   async createLeave(
-    { code, endDate, startDate, totalDays }: CreateLeaveDto,
+    input: CreateLeaveDto,
     user: IUser
   ): Promise<ILeaveWithUser> {
-    endDate = this.sharedService.setTime(endDate, true);
-    startDate = this.sharedService.setTime(startDate);
-    const { finYearId } = await this.finYearService.getCurrentFinYear();
-
-    // Validity of dates
-    await this.validateLeaveDates(startDate, endDate);
-
-    // Get leave Type
-    const leaveType = await this.leaveTypesService.getLeaveType(code);
-
-    // Validate that the user is not on any leave
-    if (await this.isOnLeave(startDate, endDate, user.userId)) {
-      throw new BadRequestException(
-        'Another leave overlaps with this leave, kindly check the start and end dates.'
-      );
-    }
-
-    // Validate number of max  leave days
-    await this.leaveBalancesService.validateMaxLeaveDays(
-      totalDays,
-      user.userId,
-      leaveType
-    );
+    const { finYearId, totalDays, leaveType, endDate, startDate } =
+      await this.checkLeaveConfig(input, user.userId);
 
     try {
       let leaveResponse;
@@ -74,7 +56,7 @@ export class LeavesService {
                 },
               },
               leaveTypes: {
-                connect: { code },
+                connect: { code: leaveType.code },
               },
             },
 
@@ -101,7 +83,7 @@ export class LeavesService {
                 },
               },
               leaveTypes: {
-                connect: { code },
+                connect: { code: leaveType.code },
               },
             },
 
@@ -112,7 +94,7 @@ export class LeavesService {
               userId_leaveTypeCode_finYearId: {
                 finYearId,
                 userId: user.userId,
-                leaveTypeCode: code,
+                leaveTypeCode: leaveType.code,
               },
             },
 
@@ -121,7 +103,7 @@ export class LeavesService {
         ]);
       }
 
-      await this.cacheService.del('leaves-code-' + code);
+      await this.cacheService.del('leaves-code-' + leaveType.code);
       await this.cacheService.del('leaves-user-' + user.userId);
       await this.cacheService.del('leaves-recent');
       await this.usersService.invalidateCache(user.userId);
@@ -177,6 +159,42 @@ export class LeavesService {
   //   );
   // }
 
+  async checkLeaveConfig(
+    { code, endDate, startDate }: CreateLeaveDto,
+    userId: number
+  ): Promise<ICheckLeaveConfig> {
+    endDate = this.sharedService.setTime(endDate, true);
+    startDate = this.sharedService.setTime(startDate);
+    const finYearId = (await this.finYearService.getCurrentFinYear()).finYearId;
+    await this.validateLeaveDates(startDate, endDate);
+    const leaveType = await this.leaveTypesService.getLeaveType(code);
+    const totalDays = await this.countDays(finYearId, startDate, endDate);
+    const onLeave = await this.isOnLeave(startDate, endDate, userId, finYearId);
+
+    if (onLeave.isOnleave) {
+      throw new BadRequestException(
+        'Another leave overlaps with this leave, kindly check the start and end dates.'
+      );
+    }
+
+    //  Validate maxleavedays
+    await this.leaveBalancesService.validateMaxLeaveDays(
+      totalDays,
+      userId,
+      leaveType,
+      finYearId
+    );
+
+    return {
+      totalDays,
+      usersOnLeave: onLeave.userLeaves,
+      leaveType,
+      endDate,
+      startDate,
+      finYearId,
+    };
+  }
+
   // Validate the dates are within the financial year
   private async validateLeaveDates(
     startDate: Date,
@@ -200,60 +218,108 @@ export class LeavesService {
   private async isOnLeave(
     startDate: Date,
     endDate: Date,
-    userId: number
-  ): Promise<boolean> {
+    userId: number,
+    finYearId: number
+  ): Promise<{ isOnleave: boolean; userLeaves: ILeaveWithUser[] }> {
     // Criteria
 
-    const isOnLeave = await this.dbService.leaves.findFirst({
-      where: {
-        userId,
-        OR: [
-          {
-            AND: [
-              {
-                startDate: {
-                  gte: startDate,
+    const usersOnLeave: ILeaveWithUser[] = await this.dbService.leaves.findMany(
+      {
+        where: {
+          finYearId,
+          OR: [
+            {
+              AND: [
+                {
+                  startDate: {
+                    gte: startDate,
+                  },
                 },
-              },
-              {
-                startDate: {
-                  lte: endDate,
+                {
+                  startDate: {
+                    lte: endDate,
+                  },
                 },
-              },
-            ],
-          },
-          {
-            AND: [
-              {
-                startDate: {
-                  lte: startDate,
+              ],
+            },
+            {
+              AND: [
+                {
+                  startDate: {
+                    lte: startDate,
+                  },
                 },
-              },
-              {
-                endDate: {
-                  gte: endDate,
+                {
+                  endDate: {
+                    gte: endDate,
+                  },
                 },
-              },
-            ],
-          },
-          {
-            AND: [
-              {
-                endDate: {
-                  lte: endDate,
+              ],
+            },
+            {
+              AND: [
+                {
+                  endDate: {
+                    lte: endDate,
+                  },
                 },
-              },
-              {
-                endDate: {
-                  gte: startDate,
+                {
+                  endDate: {
+                    gte: startDate,
+                  },
                 },
-              },
-            ],
-          },
-        ],
-      },
+              ],
+            },
+          ],
+        },
+        select: {
+          startDate: true,
+          leaveId: true,
+          endDate: true,
+          users: { select: { email: true, firstName: true, userId: true } },
+          leaveTypes: true,
+        },
+      }
+    );
+
+    // Cache this value for a user's use
+    let isOnleave = false;
+
+    for (const m in usersOnLeave) {
+      const leave = usersOnLeave[m];
+      if (leave.users.userId === userId) {
+        isOnleave = true;
+        break;
+      }
+    }
+
+    return { isOnleave, userLeaves: usersOnLeave };
+  }
+
+  private countDays = async (
+    finYearId: number,
+    start: Date,
+    end: Date
+  ): Promise<number> => {
+    end = this.sharedService.setTime(end);
+
+    const allDates = eachDayOfInterval({
+      start,
+      end,
+    });
+    const offDaysMap = await this.offDaysService.getOffDaysMap(finYearId);
+
+    const withoutWeekends = allDates.filter((date) => {
+      if (isWeekend(date)) {
+        return false;
+      }
+
+      if (offDaysMap.has(new Date(date).toDateString())) {
+        return false;
+      }
+      return true;
     });
 
-    return Boolean(isOnLeave);
-  }
+    return withoutWeekends.length;
+  };
 }

@@ -56,6 +56,9 @@ importers:
       cookie-parser:
         specifier: ^1.4.6
         version: 1.4.6
+      date-fns:
+        specifier: ^2.30.0
+        version: 2.30.0
       handlebars:
         specifier: ^4.7.7
         version: 4.7.7
