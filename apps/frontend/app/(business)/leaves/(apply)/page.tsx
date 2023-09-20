@@ -2,28 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { CalendarIcon } from '@radix-ui/react-icons';
-import { format } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
-import { useMutation, useQuery } from 'react-query';
-import { addLeave, checkLeave, getLeaveTypes } from '@/lib/fetchers';
-import { useAuthStore } from '@/state/auth.state';
-import { countWeekdays } from '@/lib/helpers';
+import { useMutation } from 'react-query';
+import { addLeave, checkLeave } from '@/lib/fetchers';
+
 import { queryClient } from '@/lib/providers/reactquery.provider';
 import { ILeaveWithUser } from '@/lib/types/leave';
 import OnLeaveTable from './components/onLeaveTable';
