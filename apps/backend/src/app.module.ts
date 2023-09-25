@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -9,12 +9,12 @@ import { DBModule } from '@db';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { RolesModule } from './roles/roles.module';
 import { MailModule } from './mails/mail.module';
-import { LoggerModule } from 'nestjs-pino';
 import { OffdaysModule } from './offdays/offdays.module';
 import { FinyearModule } from './finyear/finyear.module';
 import { SharedModule } from './shared/shared.module';
 import { WorkerModule } from './worker/worker.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { WinstonModule } from 'nest-winston';
 
 @Module({
   imports: [
@@ -26,23 +26,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     }),
     ScheduleModule.forRoot(),
     MailModule,
-    LoggerModule.forRootAsync({
-      useFactory: (configService: ConfigService) => ({
-        pinoHttp: {
-          transport:
-            configService.get('NODE_ENV') === 'development'
-              ? {
-                  target: 'pino-pretty',
-                  options: {
-                    singleLine: true,
-                  },
-                }
-              : null,
-          level: 'error',
-        },
-      }),
-      inject: [ConfigService],
-    }),
+
     UsersModule,
     LeavesModule,
     AuthModule,
@@ -54,6 +38,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     WorkerModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, Logger],
+  exports: [Logger],
 })
 export class AppModule {}

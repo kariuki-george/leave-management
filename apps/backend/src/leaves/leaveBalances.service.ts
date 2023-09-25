@@ -15,7 +15,7 @@ import { AnnualLeaveBalances } from '@prisma/client';
 
 @Injectable()
 export class LeaveBalancesService {
-  logger = new Logger(LeaveBalancesService.name);
+  private logger = new Logger(LeaveBalancesService.name);
   constructor(
     private readonly dbService: PrismaService,
     private readonly finYearService: FinyearService

@@ -51,6 +51,8 @@ export class UsersService {
       secret: Buffer.from(this.configService.get('PASS_SECRET') as string),
     });
 
+    await argon.verify(hash, '');
+
     // Update user with the new Details and initialize the number of days remaining
 
     try {
