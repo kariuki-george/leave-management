@@ -75,7 +75,7 @@ model Users {
 model OffDays {
   createdAt DateTime @default(now())
   offDayId  Int      @id @default(autoincrement())
-  date      DateTime
+  date      String
   name      String
   author    String?
   disabled Boolean @default(false)
@@ -86,8 +86,8 @@ model OffDays {
 
 model FinYear {
   finYearId Int           @id @default(autoincrement())
-  startDate DateTime
-  endDate   DateTime
+  startDate String
+  endDate   String
   createdAt DateTime      @default(now())
   author    String?
   status    FinYearStatus @default(CURRENT)

@@ -1,6 +1,6 @@
 export class OffDay {
   offDayId: number;
-  date: Date;
+  date: string;
   name: string;
   disabled: boolean;
   createdAt: Date;

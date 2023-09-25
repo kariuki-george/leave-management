@@ -10,8 +10,7 @@ import { ICheckLeaveConfig, ILeaveWithUser } from './models/index.models';
 import { CreateLeaveDto, IGetLeavesFilterDto } from './dtos/index.dtos';
 import { IUser } from 'src/users/models/index.models';
 import { UsersService } from 'src/users/users.service';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+
 import { SharedService } from 'src/shared/shared.service';
 import { LeaveTypesService } from './leaveTypes.service';
 import { FinyearService } from 'src/finyear/finyear.service';
@@ -25,13 +24,14 @@ export class LeavesService {
   constructor(
     private readonly dbService: PrismaService,
     private readonly usersService: UsersService,
-    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
     private readonly sharedService: SharedService,
     private readonly leaveTypesService: LeaveTypesService,
     private readonly finYearService: FinyearService,
     private readonly leaveBalancesService: LeaveBalancesService,
     private readonly offDaysService: OffdaysService
-  ) {}
+  ) {
+    this.countDays(1, new Date('2023-12-21'), new Date('2024-01-01'));
+  }
 
   async createLeave(
     input: CreateLeaveDto,
@@ -103,9 +103,6 @@ export class LeavesService {
         ]);
       }
 
-      await this.cacheService.del('leaves-code-' + leaveType.code);
-      await this.cacheService.del('leaves-user-' + user.userId);
-      await this.cacheService.del('leaves-recent');
       await this.usersService.invalidateCache(user.userId);
 
       return { ...leaveResponse[0], users: user };
@@ -118,16 +115,9 @@ export class LeavesService {
   //NOTE: Returns all leaves in a leave year
 
   async getLeaves(filter: IGetLeavesFilterDto): Promise<ILeaveWithUser[]> {
-    let leaves: ILeaveWithUser[] = await this.cacheService.get(
-      'leaves-' + JSON.stringify(filter)
-    );
-    if (leaves) {
-      return leaves;
-    }
-
     const { finYearId, leaveTypeCode, limit, userId } = filter;
 
-    leaves = await this.dbService.leaves.findMany({
+    const leaves = await this.dbService.leaves.findMany({
       where: { userId, leaveTypeCode, finYearId },
       include: {
         leaveTypes: true,
@@ -203,8 +193,8 @@ export class LeavesService {
     const currentFinYear = await this.finYearService.getCurrentFinYear();
 
     if (
-      currentFinYear.startDate > startDate ||
-      currentFinYear.endDate < endDate
+      new Date(currentFinYear.startDate) > startDate ||
+      new Date(currentFinYear.endDate) < endDate
     ) {
       throw new BadRequestException(
         'All leaves should be within the current financial year'
@@ -309,7 +299,7 @@ export class LeavesService {
     });
     const offDaysMap = await this.offDaysService.getOffDaysMap(finYearId);
 
-    const withoutWeekends = allDates.filter((date) => {
+    const withoutOffdays = allDates.filter((date) => {
       if (isWeekend(date)) {
         return false;
       }
@@ -320,6 +310,8 @@ export class LeavesService {
       return true;
     });
 
-    return withoutWeekends.length;
+    console.log(withoutOffdays);
+
+    return withoutOffdays.length;
   };
 }

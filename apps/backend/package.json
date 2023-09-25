@@ -21,7 +21,6 @@
     "prisma:generate": "prisma generate"
   },
   "dependencies": {
-    "@nestjs/cache-manager": "^2.1.0",
     "@nestjs/common": "^9.4.3",
     "@nestjs/config": "^3.0.0",
     "@nestjs/core": "^9.4.3",
@@ -31,7 +30,6 @@
     "@nestjs/throttler": "^4.2.1",
     "@prisma/client": "5.2.0",
     "argon2": "^0.30.3",
-    "cache-manager": "^5.2.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.6",

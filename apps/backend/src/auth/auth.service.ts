@@ -37,6 +37,12 @@ export class AuthService {
         'User with the provided details does not exist or has been blocked'
       );
     }
+
+    if (!user.password) {
+      throw new BadRequestException(
+        'Something is wrong with your password, kindly change it'
+      );
+    }
     // Validate pass
     const isValid = await argon.verify(user.password, password, {
       secret: Buffer.from(this.configService.get('PASS_SECRET') as string),

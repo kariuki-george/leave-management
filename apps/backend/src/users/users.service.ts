@@ -14,8 +14,6 @@ import {
 import { PrismaService } from '@db';
 import { IUser } from './models/index.models';
 import * as argon from 'argon2';
-import { Cache } from 'cache-manager';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Users } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { FinyearService } from '../finyear/finyear.service';
@@ -25,7 +23,6 @@ export class UsersService {
   private readonly logger = new Logger(UsersService.name);
   constructor(
     private readonly dbService: PrismaService,
-    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
     private readonly configService: ConfigService,
     private readonly finYearService: FinyearService
   ) {}
@@ -138,26 +135,20 @@ export class UsersService {
   }
 
   async invalidateCache(userId: number) {
-    return await this.cacheService.del('user-' + userId);
+    return;
   }
 
   async getUser(userId: number): Promise<IUser> {
     // Check in cache
-    let user: Users = await this.cacheService.get('user-' + userId);
-
-    if (user) {
-      return this.cleanUser(user);
-    }
 
     try {
-      user = await this.dbService.users.findUnique({
+      const user = await this.dbService.users.findUnique({
         where: { userId, disabled: false },
       });
 
       //   Method invoker should deal with the response appropriately
       if (!user) return null;
       // If a user is disabled, It's the same as if the user is deleted.
-      await this.cacheService.set('user-' + userId, user);
 
       return this.cleanUser(user);
     } catch (error) {
@@ -167,13 +158,7 @@ export class UsersService {
   }
 
   async getUsers(filter: Partial<IUser>): Promise<Partial<IUser>[]> {
-    let users: Partial<IUser>[] = await this.cacheService.get(
-      'users' + JSON.stringify(filter)
-    );
-
-    if (users) return users;
-
-    users = await this.dbService.users.findMany({
+    const users = await this.dbService.users.findMany({
       select: {
         firstName: true,
         lastName: true,
@@ -184,7 +169,6 @@ export class UsersService {
       where: filter,
     });
 
-    await this.cacheService.set('users' + JSON.stringify(filter), users);
     return users;
   }
 

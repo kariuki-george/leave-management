@@ -10,7 +10,7 @@ import {
 
 export class CreateOffDay {
   @IsDateString()
-  date: Date;
+  date: string;
   @IsString()
   name: string;
   @IsBoolean()

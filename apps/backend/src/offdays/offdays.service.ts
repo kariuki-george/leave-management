@@ -16,6 +16,7 @@ export class OffdaysService {
   ) {}
 
   createOffDay({ date, name }: CreateOffDay, author: string): Promise<OffDay> {
+    console.log(date);
     return this.dbService.offDays.create({ data: { date, name, author } });
   }
   async deleteOffDay(offDayId: number): Promise<boolean> {
@@ -32,7 +33,7 @@ export class OffdaysService {
     const map = new Map<string, OffDay>();
     for (const m in offDays) {
       const offDay = offDays[m];
-      map.set(new Date(offDay.date).toDateString(), offDay);
+      map.set(offDay.date, offDay);
     }
     return map;
   }
@@ -74,19 +75,21 @@ export class OffdaysService {
         this.sharedService.constructDate(year, month, day)
       );
     };
-    const { startDate } = await this.finYearService.getCurrentFinYear();
+    const startDate = new Date(
+      (await this.finYearService.getCurrentFinYear()).startDate
+    );
     const list: Partial<OffDay>[] = [
       {
         name: 'Christmas',
-        date: formatDate(startDate.getFullYear(), 11, 25),
+        date: formatDate(startDate.getFullYear(), 11, 25).toDateString(),
       },
       {
         name: 'Boxing',
-        date: formatDate(startDate.getFullYear(), 11, 26),
+        date: formatDate(startDate.getFullYear(), 11, 26).toDateString(),
       },
       {
         name: 'New Year',
-        date: formatDate(startDate.getFullYear() + 1, 0, 1),
+        date: formatDate(startDate.getFullYear() + 1, 0, 1).toDateString(),
       },
     ];
 

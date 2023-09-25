@@ -23,6 +23,7 @@ export class AppService {
   }
 
   async getMasterDate(user: IUser): Promise<MasterData> {
+    console.log(user);
     const { finYearId } = await this.finYearService.getCurrentFinYear();
 
     const leaveBalances = await this.leaveBalancesService.getUserLeaveBalances(

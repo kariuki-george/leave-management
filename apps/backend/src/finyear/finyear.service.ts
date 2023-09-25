@@ -2,19 +2,23 @@ import { PrismaService } from '@db';
 import { Injectable } from '@nestjs/common';
 import { FinYear } from './models/index.models';
 import { SharedService } from 'src/shared/shared.service';
+import {
+  isFuture,
+  isPast,
+  isToday,
+  lastDayOfMonth,
+  startOfMonth,
+} from 'date-fns';
 
 // BEWARE OF SERVER TIME
 
 @Injectable()
 export class FinyearService {
-  constructor(
-    private readonly dbService: PrismaService,
-    private readonly sharedService: SharedService
-  ) {}
+  constructor(private readonly dbService: PrismaService) {}
 
   async createFinYear(
-    startDate: Date,
-    endDate: Date,
+    startDate: string,
+    endDate: string,
     author: string
   ): Promise<FinYear> {
     return this.dbService.finYear.create({
@@ -34,8 +38,9 @@ export class FinyearService {
 
     if (
       current &&
-      current.startDate < new Date() &&
-      current.endDate > new Date()
+      (isPast(new Date(current.startDate)) ||
+        isToday(new Date(current.startDate))) &&
+      isFuture(new Date(current.endDate))
     ) {
       return current;
     }
@@ -63,17 +68,14 @@ export class FinyearService {
     return newFinYear[1];
   }
 
-  private newFinancialYearDates(): { startDate: Date; endDate: Date } {
+  private newFinancialYearDates(): { startDate: string; endDate: string } {
     // Leave year starts on July year1 to June year2
     const currentYear = new Date().getFullYear();
 
-    const startDate = this.sharedService.setTime(
-      this.sharedService.constructDate(currentYear, 6, 1)
-    );
-    const endDate = this.sharedService.setTime(
-      this.sharedService.constructDate(currentYear + 1, 5, 1),
-      true
-    );
+    const startDate = startOfMonth(new Date(currentYear, 6, 1)).toDateString();
+    const endDate = lastDayOfMonth(new Date(currentYear + 1, 5)).toDateString();
+
+    console.log(startDate, endDate);
 
     return { endDate, startDate };
   }

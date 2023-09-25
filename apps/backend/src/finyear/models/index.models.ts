@@ -1,7 +1,7 @@
 export class FinYear {
   finYearId: number;
-  startDate: Date;
-  endDate: Date;
+  startDate: string;
+  endDate: string;
   createdAt: Date;
   author: string;
 }
