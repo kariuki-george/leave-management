@@ -1,7 +1,7 @@
 import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { LeavesModule } from './leaves/leaves.module';
 import { AuthModule } from './auth/auth.module';
@@ -14,7 +14,7 @@ import { FinyearModule } from './finyear/finyear.module';
 import { SharedModule } from './shared/shared.module';
 import { WorkerModule } from './worker/worker.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { WinstonModule } from 'nest-winston';
+import { RedisModule } from '@redis';
 
 @Module({
   imports: [
@@ -36,6 +36,7 @@ import { WinstonModule } from 'nest-winston';
     FinyearModule,
     SharedModule,
     WorkerModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger],

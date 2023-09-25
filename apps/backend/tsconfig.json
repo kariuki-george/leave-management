@@ -20,7 +20,9 @@
       "@db": ["libs/prisma/src"],
       "@db/*": ["libs/prisma/src/*"],
       "@shared": ["libs/shared/src"],
-      "@shared/*": ["libs/shared/src/*"]
+      "@shared/*": ["libs/shared/src/*"],
+      "@redis": ["libs/redis/src"],
+      "@redis/*": ["libs/redis/src/*"]
     }
   }
 }

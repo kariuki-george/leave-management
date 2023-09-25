@@ -14,6 +14,8 @@
     "@db/(.*)": "<rootDir>/../libs/prisma/src/$1",
     "@db": "<rootDir>/../libs/prisma/src",
     "@shared/(.*)": "<rootDir>/../libs/shared/src/$1",
-    "@shared/": "<rootDir>/../libs/shared/src"
+    "@shared/": "<rootDir>/../libs/shared/src",
+    "@redis/@redis/(.*)": "<rootDir>/../libs/@redis/src/$1",
+    "@redis/@redis": "<rootDir>/../libs/@redis/src"
   }
 }

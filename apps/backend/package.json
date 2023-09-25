@@ -95,7 +95,8 @@
     "moduleNameMapper": {
       "^@db(|/.*)$": "<rootDir>/libs/prisma/src/$1",
       "^@/(.*)$": "<rootDir>/src/$1",
-      "^@src/(.*)$": "<rootDir>/src/$1"
+      "^@src/(.*)$": "<rootDir>/src/$1",
+      "^@redis(|/.*)$": "<rootDir>/libs/@redis/src/$1"
     }
   }
 }
