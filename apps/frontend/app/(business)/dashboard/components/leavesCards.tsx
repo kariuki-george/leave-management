@@ -3,7 +3,7 @@
 import { getLeaveBalances } from '@/lib/fetchers';
 import { Card, CardContent } from '@/components/ui/card';
 import React from 'react';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import LeaveCard from './leaveCard';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -12,7 +12,7 @@ import { siteConfig } from '@/config/site';
 const LeavesCard = () => {
   const { data } = useQuery({
     queryFn: getLeaveBalances,
-    queryKey: 'leaveBalances',
+    queryKey: ['leaveBalances'],
   });
 
   return (

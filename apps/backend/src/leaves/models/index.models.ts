@@ -38,10 +38,15 @@ export class IUserLeaveBalance {
 }
 
 export class ICheckLeaveConfig {
-  totalDays: number;
+  allLeaveDays: Date[];
   usersOnLeave: ILeaveWithUser[];
   leaveType: ILeaveType;
   endDate: Date;
   startDate: Date;
   finYearId: number;
+}
+
+export class IUserLeave {
+  user: Partial<IUser>;
+  leaves: { [key: string]: { code: string; name: string } };
 }

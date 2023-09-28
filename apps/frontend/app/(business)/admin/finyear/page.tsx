@@ -3,7 +3,7 @@
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import React from 'react';
 import FinYearsTable from './components/finYearsTable';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getFinYears } from '@/lib/fetchers';
 
 const FinYear = () => {

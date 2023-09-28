@@ -27,7 +27,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { logout } from '@/lib/fetchers';
 import { toast } from '../ui/use-toast';
 import {

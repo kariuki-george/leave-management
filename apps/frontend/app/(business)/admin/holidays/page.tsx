@@ -3,7 +3,7 @@
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import React from 'react';
 import HolidaysTable from './components/holidaysTable';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getOffDays } from '@/lib/fetchers';
 import dynamic from 'next/dynamic';
 import { Icons } from '@/components/icons';

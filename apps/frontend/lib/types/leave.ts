@@ -1,5 +1,6 @@
 import { ILeaveType } from './leaveTypes';
 import { IUser } from './user';
+import { FinYear } from './finyear';
 
 export interface ILeave {
   leaveId: number;
@@ -16,4 +17,9 @@ export interface ILeaveWithUser {
   endDate: Date;
   leaveTypes: ILeaveType;
   users: Partial<IUser>;
+}
+
+export interface IUserLeave {
+  user: Partial<IUser>;
+  leaves: { [key: string]: { code: string; name: string } };
 }

@@ -6,7 +6,11 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import { ICheckLeaveConfig, ILeaveWithUser } from './models/index.models';
+import {
+  ICheckLeaveConfig,
+  ILeaveWithUser,
+  IUserLeave,
+} from './models/index.models';
 import { CreateLeaveDto, IGetLeavesFilterDto } from './dtos/index.dtos';
 import { IUser } from 'src/users/models/index.models';
 import { UsersService } from 'src/users/users.service';
@@ -15,9 +19,26 @@ import { SharedService } from 'src/shared/shared.service';
 import { LeaveTypesService } from './leaveTypes.service';
 import { FinyearService } from 'src/finyear/finyear.service';
 import { LeaveBalancesService } from './leaveBalances.service';
-import { eachDayOfInterval, isWeekend } from 'date-fns';
+import {
+  eachDayOfInterval,
+  endOfMonth,
+  format,
+  isWeekend,
+  startOfMonth,
+} from 'date-fns';
 import { OffdaysService } from 'src/offdays/offdays.service';
 
+[
+  {
+    user: { firstName: 'Kariuki', lastName: 'George' },
+    leaves: {
+      '2023-10-01T21:00:00.000Z': { code: 'SL', name: 'Sick Leave' },
+      '2023-10-02T21:00:00.000Z': { code: 'SL', name: 'Sick Leave' },
+      '2023-10-03T21:00:00.000Z': { code: 'SL', name: 'Sick Leave' },
+      '2023-10-04T21:00:00.000Z': { code: 'SL', name: 'Sick Leave' },
+    },
+  },
+];
 @Injectable()
 export class LeavesService {
   private readonly logger = new Logger(LeavesService.name);
@@ -29,16 +50,16 @@ export class LeavesService {
     private readonly finYearService: FinyearService,
     private readonly leaveBalancesService: LeaveBalancesService,
     private readonly offDaysService: OffdaysService
-  ) {
-    this.countDays(1, new Date('2023-12-21'), new Date('2024-01-01'));
-  }
+  ) {}
 
   async createLeave(
     input: CreateLeaveDto,
     user: IUser
   ): Promise<ILeaveWithUser> {
-    const { finYearId, totalDays, leaveType, endDate, startDate } =
+    const { finYearId, allLeaveDays, leaveType, endDate, startDate } =
       await this.checkLeaveConfig(input, user.userId);
+
+    const totalDays = allLeaveDays.length;
 
     try {
       let leaveResponse;
@@ -49,6 +70,7 @@ export class LeavesService {
               endDate,
               startDate,
               totalDays,
+              allLeaveDays: JSON.stringify(allLeaveDays),
               finYear: { connect: { finYearId } },
               users: {
                 connect: {
@@ -76,6 +98,7 @@ export class LeavesService {
               startDate,
               totalDays,
               finYear: { connect: { finYearId } },
+              allLeaveDays: JSON.stringify(allLeaveDays),
 
               users: {
                 connect: {
@@ -137,17 +160,98 @@ export class LeavesService {
     return leaves;
   }
 
-  // async getUsersWithLeaves() {
-  //   console.log(
-  //     await this.dbService.users.findMany({
-  //       include: {
-  //         leaves: {
-  //           include: { finYear :true,leaveTypes:true},
-  //         },
-  //       },
-  //     })
-  //   );
-  // }
+  async getUsersWithLeaves(
+    finYearId: number,
+    startDate: Date,
+    endDate: Date
+  ): Promise<IUserLeave[]> {
+    const usersWithLeaves = await this.dbService.users.findMany({
+      select: {
+        firstName: true,
+        lastName: true,
+        leaves: {
+          select: {
+            allLeaveDays: true,
+            leaveTypes: { select: { code: true, name: true } },
+          },
+          where: {
+            finYearId,
+            OR: [
+              {
+                AND: [
+                  {
+                    startDate: {
+                      gte: startDate,
+                    },
+                  },
+                  {
+                    startDate: {
+                      lte: endDate,
+                    },
+                  },
+                ],
+              },
+              {
+                AND: [
+                  {
+                    startDate: {
+                      lte: startDate,
+                    },
+                  },
+                  {
+                    endDate: {
+                      gte: endDate,
+                    },
+                  },
+                ],
+              },
+              {
+                AND: [
+                  {
+                    endDate: {
+                      lte: endDate,
+                    },
+                  },
+                  {
+                    endDate: {
+                      gte: startDate,
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    const summary = [];
+
+    for (const index in usersWithLeaves) {
+      const user = usersWithLeaves[index];
+      const leaves: { [key: string]: { code: string; name: string } } = {};
+
+      for (const m in user.leaves) {
+        const leave = user.leaves[m];
+
+        JSON.parse(leave.allLeaveDays).forEach((date) => {
+          date = format(new Date(date), 'MM/dd/yyyy');
+
+          leaves[date] = {
+            code: leave.leaveTypes.code,
+            name: leave.leaveTypes.name,
+          };
+        });
+      }
+
+      summary.push({
+        user: { firstName: user.firstName, lastName: user.lastName },
+        leaves: leaves,
+      });
+    }
+
+    return summary;
+  }
 
   async checkLeaveConfig(
     { code, endDate, startDate }: CreateLeaveDto,
@@ -158,7 +262,7 @@ export class LeavesService {
     const finYearId = (await this.finYearService.getCurrentFinYear()).finYearId;
     await this.validateLeaveDates(startDate, endDate);
     const leaveType = await this.leaveTypesService.getLeaveType(code);
-    const totalDays = await this.countDays(finYearId, startDate, endDate);
+    const allLeaveDays = await this.allLeaveDays(finYearId, startDate, endDate);
     const onLeave = await this.isOnLeave(startDate, endDate, userId, finYearId);
 
     if (onLeave.isOnleave) {
@@ -169,14 +273,14 @@ export class LeavesService {
 
     //  Validate maxleavedays
     await this.leaveBalancesService.validateMaxLeaveDays(
-      totalDays,
+      allLeaveDays.length,
       userId,
       leaveType,
       finYearId
     );
 
     return {
-      totalDays,
+      allLeaveDays,
       usersOnLeave: onLeave.userLeaves,
       leaveType,
       endDate,
@@ -286,11 +390,11 @@ export class LeavesService {
     return { isOnleave, userLeaves: usersOnLeave };
   }
 
-  private countDays = async (
+  private allLeaveDays = async (
     finYearId: number,
     start: Date,
     end: Date
-  ): Promise<number> => {
+  ): Promise<Date[]> => {
     end = this.sharedService.setTime(end);
 
     const allDates = eachDayOfInterval({
@@ -310,8 +414,6 @@ export class LeavesService {
       return true;
     });
 
-    console.log(withoutOffdays);
-
-    return withoutOffdays.length;
+    return withoutOffdays;
   };
 }

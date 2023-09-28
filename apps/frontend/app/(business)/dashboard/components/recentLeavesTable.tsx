@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getRecentLeaves } from '@/lib/fetchers';
 import { ILeaveWithUser } from '@/lib/types/leave';
 import { format } from 'date-fns';

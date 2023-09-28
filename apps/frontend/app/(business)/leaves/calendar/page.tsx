@@ -15,7 +15,7 @@ import { IUser } from '@/lib/types/user';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/state/auth.state';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { Icons } from '@/components/icons';
 

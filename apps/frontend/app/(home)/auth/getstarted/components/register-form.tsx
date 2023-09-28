@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import * as z from 'zod';
 
 import { siteConfig } from '@/config/site';
@@ -43,7 +43,8 @@ export const RegisterForm = () => {
 
   // Submit
   const router = useRouter();
-  const { mutate, isLoading } = useMutation('assignUser', assignUser, {
+  const { mutate, isLoading } = useMutation({
+    mutationFn: assignUser,
     onSuccess: (data: any) => {
       toast({
         title: 'Account created successfully!',

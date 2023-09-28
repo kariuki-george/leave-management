@@ -14,6 +14,7 @@ import { LeavesService } from './leaves.service';
 import { CreateLeaveDto } from './dtos/index.dtos';
 import { ICheckLeaveConfig, ILeaveWithUser } from './models/index.models';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { parseISO, parseJSON } from 'date-fns';
 
 @Controller('leaves')
 export class LeavesController {
@@ -81,5 +82,33 @@ export class LeavesController {
       limit,
       userId,
     });
+  }
+
+  @Get('users')
+  @UseGuards(AuthGuard)
+  getUserLeaves(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+    @Query('finYearId') finYearId: number
+  ) {
+    if (
+      !(startDate && endDate) ||
+      parseJSON(startDate).toString() === 'Invalid Date' ||
+      parseJSON(endDate).toString() === 'Invalid Date'
+    ) {
+      throw new BadRequestException('Please include valid start and end Dates');
+    }
+
+    if (!finYearId || !Number(finYearId)) {
+      throw new BadRequestException('Please add a financial year');
+    }
+
+    console.log(startDate, endDate);
+
+    return this.leavesService.getUsersWithLeaves(
+      Number(finYearId),
+      parseJSON(startDate),
+      parseJSON(endDate)
+    );
   }
 }

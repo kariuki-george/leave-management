@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import * as z from 'zod';
 
 import { createOffDay, updateOffDay } from '@/lib/fetchers';
@@ -99,7 +99,7 @@ const HolidayForm = ({ offDay }: Props) => {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input className="h-12" placeholder="Sick Leave" {...field} />
+                <Input className="h-12" placeholder="Christmas" {...field} />
               </FormControl>
               <FormDescription>
                 This is the name of the holiday.

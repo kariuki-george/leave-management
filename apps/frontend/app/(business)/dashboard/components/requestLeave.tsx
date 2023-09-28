@@ -20,7 +20,7 @@ import {
 import { CalendarIcon } from '@radix-ui/react-icons';
 import { format } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { addLeave } from '@/lib/fetchers';
 import { useAuthStore } from '@/state/auth.state';
 import { countWeekdays } from '@/lib/helpers';
@@ -82,7 +82,6 @@ const RequestLeaveForm = () => {
   const { setUser, user } = useAuthStore((state) => state);
   const { isLoading, mutate } = useMutation({
     mutationFn: addLeave,
-    mutationKey: 'addLeave',
     onSuccess: ({ data }: { data: ILeaveWithUser }) => {
       toast({ title: 'Added your leave successfully!' });
       // setUser({

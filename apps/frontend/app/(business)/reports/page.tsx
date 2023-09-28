@@ -11,7 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getLeaves } from '@/lib/fetchers';
 import { ILeaveWithUser } from '@/lib/types/leave';
 import { format } from 'date-fns';

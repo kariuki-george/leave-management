@@ -28,6 +28,7 @@ model Leaves {
   updatedAt  DateTime    @default(now()) @updatedAt
   userId     Int?
   totalDays  Int
+  allLeaveDays String 
   leaveTypes LeaveTypes? @relation(fields: [leaveTypeCode], references: [code])
   users      Users?      @relation(fields: [userId], references: [userId])
    finYearId Int

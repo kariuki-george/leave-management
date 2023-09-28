@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { IUser } from '@/lib/types/user';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { adminUpdateUser } from '@/lib/fetchers';
 import { toast } from '@/components/ui/use-toast';
 import { queryClient } from '@/lib/providers/reactquery.provider';

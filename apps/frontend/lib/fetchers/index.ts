@@ -7,6 +7,7 @@ import { IAnnualLeaveBalance, ILeaveBalances } from '../types/leaveBalances';
 import { ILeaveType } from '../types/leaveTypes';
 import { FinYear } from '../types/finyear';
 import { IOffDay } from '../types/offDays';
+import { IUserLeave } from '../types/leave';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const isDev = process.env.NODE_ENV === 'development';
@@ -120,6 +121,17 @@ export const addLeave = (data: any) => {
 
 export const checkLeave = (data: any) => {
   return postMutate('leaves/check', data);
+};
+
+export const getUsersLeaves = async (
+  finYearId: number,
+  startDate: string,
+  endDate: string
+): Promise<IUserLeave[]> => {
+  const { data } = await query(
+    `leaves/users?finYearId=${finYearId}&endDate=${endDate}&startDate=${startDate}`
+  );
+  return data as IUserLeave[];
 };
 
 // Admin

@@ -3,7 +3,7 @@
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import React, { useEffect, useState } from 'react';
 import UsersTable from './components/usersTable';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getAllUsers } from '@/lib/fetchers';
 import dynamic from 'next/dynamic';
 import { Icons } from '@/components/icons';

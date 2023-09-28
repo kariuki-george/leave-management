@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { toast } from '@/components/ui/use-toast';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { addLeave, checkLeave } from '@/lib/fetchers';
 
 import { queryClient } from '@/lib/providers/reactquery.provider';
@@ -11,6 +11,7 @@ import { ILeaveWithUser } from '@/lib/types/leave';
 import OnLeaveTable from './components/onLeaveTable';
 import ConfigLeave from './components/config';
 import { Icons } from '@/components/icons';
+import { Button } from '@/components/ui/button';
 
 const ApplyLeavePage = () => {
   const [leaveType, setLeaveType] = useState('');
@@ -82,12 +83,12 @@ const ApplyLeavePage = () => {
         onClick={handleSubmit}
         disabled={
           !checkLeaveFunc.data?.data ||
-          !checkLeaveFunc.data?.data?.totalDays ||
+          !checkLeaveFunc.data?.data?.allLeaveDays.length ||
           createLeaveFunc.isLoading
         }
-        isLoading={createLeaveFunc.isLoading}
+        isLoading={createLeaveFunc.isLoading || checkLeaveFunc.isLoading}
       >
-        Apply for {checkLeaveFunc.data?.data?.totalDays ?? 0} days
+        Apply for {checkLeaveFunc.data?.data?.allLeaveDays.length ?? 0} days
       </Button>
     </div>
   );

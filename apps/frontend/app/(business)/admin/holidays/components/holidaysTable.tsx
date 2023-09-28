@@ -11,7 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { updateOffDay } from '@/lib/fetchers';
 import { toast } from '@/components/ui/use-toast';
 import { queryClient } from '@/lib/providers/reactquery.provider';

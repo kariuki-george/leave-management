@@ -20,7 +20,7 @@ import {
 import { CalendarIcon } from '@radix-ui/react-icons';
 import { format, startOfTomorrow } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getLeaveTypes } from '@/lib/fetchers';
 
 interface Props {
