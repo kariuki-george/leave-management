@@ -44,7 +44,7 @@ const HolidaysTable = ({ holidays }: Props) => {
       <TableHeader>
         <TableRow>
           <TableHead>Name</TableHead>
-          <TableHead>Date - yyyy-mm-dd</TableHead>
+          <TableHead>yyyy-mm-dd</TableHead>
           <TableHead>Recurring</TableHead>
 
           <TableHead>Actions</TableHead>
