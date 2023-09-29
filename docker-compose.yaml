@@ -19,9 +19,9 @@ services:
       - 54500:4000
     labels:
       - traefik.enable=true
-      - traefik.http.routers.lms.rule=Host(`lms-v2.p.kariukigeorge.me`)
-      - traefik.http.routers.lms.tls=true
-      - traefik.http.routers.lms.tls.certresolver=lets-encrypt
+      - traefik.http.routers.lms-api.rule=Host(`lms-api.p.kariukigeorge.me`)
+      - traefik.http.routers.lms-api.tls=true
+      - traefik.http.routers.lms-api.tls.certresolver=lets-encrypt
       - traefik.port=54500
   lms-web:
     hostname: lms-web
@@ -32,9 +32,9 @@ services:
     env_file: ./apps/frontend/.env
     labels:
       - traefik.enable=true
-      - traefik.http.routers.lms-web.rule=Host(`lms-web-v2.p.kariukigeorge.me`)
-      - traefik.http.routers.lms-web.tls=true
-      - traefik.http.routers.lms-web.tls.certresolver=lets-encrypt
+      - traefik.http.routers.lms.rule=Host(`lms.p.kariukigeorge.me`)
+      - traefik.http.routers.lms.tls=true
+      - traefik.http.routers.lms.tls.certresolver=lets-encrypt
       - traefik.port=55560
     ports:
       - 55560:3000
