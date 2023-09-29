@@ -52,8 +52,8 @@ export const ChangePassForm = ({ token }: Props) => {
   // Define form and validation
 
   const formSchema = z.object({
-    password: z.string().min(8),
-    confirmPassword: z.string().min(8),
+    password: z.string().trim().min(8),
+    confirmPassword: z.string().trim().min(8),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({

@@ -23,10 +23,10 @@ import { toast } from '@/components/ui/use-toast';
 
 // Form validation
 const formSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().email(),
   employeeId: z.coerce.number().min(8).positive(),
-  password: z.string().min(8),
-  confirmPassword: z.string().min(8), // Might require extra validation
+  password: z.string().trim().min(8),
+  confirmPassword: z.string().trim().min(8), // Might require extra validation
 });
 
 export const RegisterForm = () => {
@@ -54,6 +54,10 @@ export const RegisterForm = () => {
     },
   });
   function onSubmit(values: z.infer<typeof formSchema>) {
+    alert(values.email + 'ha');
+
+    return;
+
     if (values.confirmPassword !== values.password) {
       return toast({
         title: 'An error occurred',

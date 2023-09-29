@@ -55,9 +55,9 @@ export const LoginForm = () => {
   // Define form and validation
 
   const formSchema = z.object({
-    email: z.string().email(),
+    email: z.string().trim().email(),
 
-    password: z.string().min(8),
+    password: z.string().trim().min(8),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({

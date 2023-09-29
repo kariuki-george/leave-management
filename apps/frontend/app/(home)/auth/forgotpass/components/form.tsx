@@ -39,7 +39,7 @@ export const ForgotPassForm = () => {
   // Define form and validation
 
   const formSchema = z.object({
-    email: z.string().email(),
+    email: z.string().trim().email(),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({

@@ -21,7 +21,7 @@ const LeavesView = ({ userLeaves, monthDates }: Props) => {
   console.log('rendered');
   return (
     <div className="flex w-full overflow-x-auto  ">
-      <div className="  flex w-[200px] flex-col rounded-l-sm  border  ">
+      <div className="  flex w-[200px] min-w-[200px] flex-col rounded-l-sm  border  ">
         <span className={cn('h-[50px] border-b p-2')}>Name</span>
         {userLeaves?.map(({ user }, index) => (
           <span className={cn('h-[40px] border-b p-2')} key={index}>
