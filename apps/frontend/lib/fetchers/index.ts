@@ -140,8 +140,8 @@ export const getAllUsers = async (disabled: boolean): Promise<IUser[]> => {
   return data as IUser[];
 };
 
-export const getUserLeaves = (userId: string) => {
-  return query('leaves?userId=' + userId);
+export const getUserLeaves = (userId: string, finYearId: number) => {
+  return query(`leaves?userId=${userId}&${finYearId}`);
 };
 
 export const createUser = (data: any) => {

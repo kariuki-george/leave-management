@@ -1,5 +1,6 @@
 import { eachDayOfInterval, isWeekend } from 'date-fns';
 import { ILeave } from '../types/leave';
+import { ILeaveType } from '../types/leaveTypes';
 
 const getWeekDays = (start: Date, end: Date): Date[] => {
   const allDates = eachDayOfInterval({
@@ -20,16 +21,15 @@ type ISummary = {
   };
 };
 
-export const prepareUserLeaves = (leaves: ILeave[]): ISummary => {
-  const summary: ISummary = {
-    CL: { days: [], total: 0 },
-    ML: { days: [], total: 0 },
-    PL: { days: [], total: 0 },
-    PTL: { days: [], total: 0 },
-    SL: { days: [], total: 0 },
-    UP: { days: [], total: 0 },
-  };
-
+export const prepareUserLeaves = (
+  leaves: ILeave[],
+  leaveTypes: ILeaveType[]
+): ISummary => {
+  const summary: ISummary = {};
+  for (const leaveTypeIndex in leaveTypes) {
+    const leaveType = leaveTypes[leaveTypeIndex];
+    summary[leaveType.code] = { total: 0, days: []};
+  }
   for (const index in leaves) {
     const leave = leaves[index];
 

@@ -18,6 +18,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { Icons } from '@/components/icons';
+import { colors } from '@/lib/helpers/colors';
 
 const SelectUserTrigger = dynamic(
   () => import('./components/selectUserTrigger'),
@@ -41,6 +42,11 @@ const Year = () => {
     queryKey: ['getUsers'],
   });
 
+  // Cache colors with leaveTypes
+  const [leaveTypeColor, setLeaveTypeColor] = useState<{
+    [key: string]: string;
+  }>({});
+
   // Get leavetypes
   const leaveTypes = useQuery({
     queryKey: ['leaveTypes'],
@@ -49,6 +55,13 @@ const Year = () => {
       if (data.length > 0) {
         setActiveLeaveType(data[0].code);
       }
+
+      data.forEach(({ code }, index) => {
+        setLeaveTypeColor((prev) => {
+          prev[code] = colors[index % colors.length];
+          return prev;
+        });
+      });
     },
   });
 
@@ -70,12 +83,15 @@ const Year = () => {
   // Perform a fetch
   const { data, isLoading } = useQuery({
     queryFn: async () => {
-      const data = await getUserLeaves(currentUser!.userId!.toString());
+      const data = await getUserLeaves(
+        currentUser!.userId!.toString(),
+        activeFinYear as number
+      );
       return data.data;
     },
-    queryKey: ['userLeaves', currentUser?.userId],
+    queryKey: ['userLeaves', currentUser?.userId, activeFinYear],
     keepPreviousData: true,
-    enabled: !!currentUser,
+    enabled: Boolean(currentUser && activeFinYear),
   });
   useEffect(() => {
     queryClient.invalidateQueries({ queryKey: ['userLeaves', currentUser] });
@@ -86,9 +102,16 @@ const Year = () => {
   // const cachedValue = useMemo(calculateValue, dependencies);
   const cachedSummary = useMemo(() => {
     if (data) {
-      return prepareUserLeaves(data as ILeave[]);
+      return prepareUserLeaves(data as ILeave[], leaveTypes?.data ?? []);
     }
   }, [data]);
+
+  // Define the custom styles
+  const modifierStyles = {
+    selected: {
+      backgroundColor: cn(colors[0]),
+    },
+  };
 
   return (
     <div className="mb-10 flex  h-screen w-full flex-col gap-3 overflow-y-auto   sm:flex-row sm:overflow-y-hidden">
@@ -144,7 +167,7 @@ const Year = () => {
         {/* User summary */}
         <section className="mt-5 flex w-full flex-col gap-3 rounded-sm border sm:border-0 ">
           <header className="border-b p-3 text-lg font-bold">Summary</header>
-          <ul className="flex flex-col gap-3 p-3 hover:bg-background">
+          <ul className="hover:bg-background flex flex-col gap-3 p-3">
             {leaveTypes.data?.map(({ code, name }, index) => (
               <li
                 key={index}
@@ -160,12 +183,7 @@ const Year = () => {
                   <span
                     className={cn(
                       'flex h-8 w-8  items-center justify-center rounded-full  font-light ',
-                      code === 'PL' && 'bg-green-300',
-                      code === 'SL' && 'bg-red-300',
-                      code === 'PTL' && 'bg-purple-300',
-                      code === 'CL' && 'bg-yellow-300',
-                      code === 'UP' && 'bg-cyan-300',
-                      code === 'ML' && 'bg-orange-300'
+                      leaveTypeColor[code]
                     )}
                   >
                     {code}
@@ -177,11 +195,6 @@ const Year = () => {
               </li>
             ))}
           </ul>
-          {/* <span className="flex justify-between p-3">
-            {' '}
-            Remaining Leave Days:{' '}
-            <span>{currentUser?.leaveRemaining ?? 0}</span>{' '}
-          </span> */}
         </section>
       </div>
 
@@ -192,20 +205,11 @@ const Year = () => {
             <Calendar
               showOutsideDays={false}
               month={new Date(new Date().setMonth(index + 5))}
-              className="my-3 shadow dark:shadow-foreground/10  "
+              className="dark:shadow-foreground/10 my-3 shadow  "
               cellColor={
-                activeLeaveType === 'PL'
-                  ? 'bg-green-300'
-                  : activeLeaveType === 'SL'
-                  ? 'bg-red-300'
-                  : activeLeaveType === 'PTL'
-                  ? 'bg-purple-300'
-                  : activeLeaveType === 'CL'
-                  ? 'bg-yellow-300'
-                  : activeLeaveType === 'UP'
-                  ? 'bg-cyan-300'
-                  : 'bg-orange-300'
+                leaveTypeColor[activeLeaveType as string] ?? 'bg-orange-300'
               }
+              modifiersStyles={modifierStyles}
               key={index}
               mode="multiple"
               disableNavigation={true}

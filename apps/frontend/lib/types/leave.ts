@@ -1,6 +1,5 @@
 import { ILeaveType } from './leaveTypes';
 import { IUser } from './user';
-import { FinYear } from './finyear';
 
 export interface ILeave {
   leaveId: number;
@@ -8,6 +7,8 @@ export interface ILeave {
   endDate: Date;
   userId: number;
   leaveTypes: ILeaveType;
+  totalDays: number;
+  allLeaveDays: string;
 }
 
 // leaves with user
