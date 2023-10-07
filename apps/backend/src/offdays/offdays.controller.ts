@@ -25,7 +25,7 @@ export class OffdaysController {
   @Get()
   @UseGuards(AuthGuard)
   getOffDays(): Promise<OffDay[]> {
-    return this.offDaysService.getOffDays();
+    return this.offDaysService.getOffDays({});
   }
 
   @Put()

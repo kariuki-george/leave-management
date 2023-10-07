@@ -43,7 +43,6 @@ export class UsersController {
   @Get('/admin')
   @UseGuards(AuthGuard, RolesGuard)
   getUsersAdmin(@Query('disabled') disabled: string) {
-    console.log(disabled);
     return this.usersService.getUsers({ disabled: disabled === 'true' });
   }
 

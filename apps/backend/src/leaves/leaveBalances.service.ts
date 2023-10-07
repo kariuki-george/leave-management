@@ -131,6 +131,7 @@ export class LeaveBalancesService {
               maxDays: true,
               name: true,
               isAnnualLeaveBased: true,
+              disabled: true,
             },
           },
         },

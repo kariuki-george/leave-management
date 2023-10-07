@@ -1,9 +1,10 @@
 import { PrismaService } from '@db';
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { CreateOffDay } from './dtos/index.dtos';
 import { OffDay } from './models/index.models';
 import { SharedService } from 'src/shared/shared.service';
 import { FinyearService } from 'src/finyear/finyear.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class OffdaysService {
@@ -15,21 +16,39 @@ export class OffdaysService {
     private readonly finYearService: FinyearService
   ) {}
 
-  createOffDay({ date, name }: CreateOffDay, author: string): Promise<OffDay> {
-    console.log(date);
-    return this.dbService.offDays.create({ data: { date, name, author } });
+  async createOffDay(
+    { date, name }: CreateOffDay,
+    author: string
+  ): Promise<OffDay> {
+    name = name[0].toUpperCase() + name.slice(1).toLowerCase();
+    try {
+      const offDay = await this.dbService.offDays.create({
+        data: { date, name, author },
+      });
+      return offDay;
+    } catch (error) {
+      if (error.code === 'P2002')
+        throw new BadRequestException(
+          'Holiday with the same details already exists'
+        );
+
+      throw new BadRequestException('Something went wrong');
+    }
   }
   async deleteOffDay(offDayId: number): Promise<boolean> {
     await this.dbService.offDays.delete({ where: { offDayId } });
     return true;
   }
 
-  getOffDays(): Promise<OffDay[]> {
-    return this.dbService.offDays.findMany({ where: {} });
+  getOffDays(filter: Prisma.OffDaysWhereInput): Promise<OffDay[]> {
+    return this.dbService.offDays.findMany({
+      orderBy: { disabled: 'asc' },
+      where: filter,
+    });
   }
 
   async getOffDaysMap(finYearId: number): Promise<Map<string, OffDay>> {
-    const offDays = await this.getOffDays();
+    const offDays = await this.getOffDays({ disabled: false });
     const map = new Map<string, OffDay>();
     for (const m in offDays) {
       const offDay = offDays[m];

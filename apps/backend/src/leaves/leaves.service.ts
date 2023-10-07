@@ -271,6 +271,10 @@ export class LeavesService {
       );
     }
 
+    if (leaveType.disabled) {
+      throw new BadRequestException('The selected leavetype is disabled');
+    }
+
     //  Validate maxleavedays
     await this.leaveBalancesService.validateMaxLeaveDays(
       allLeaveDays.length,

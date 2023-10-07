@@ -103,8 +103,6 @@ export class LeavesController {
       throw new BadRequestException('Please add a financial year');
     }
 
-    console.log(startDate, endDate);
-
     return this.leavesService.getUsersWithLeaves(
       Number(finYearId),
       parseJSON(startDate),

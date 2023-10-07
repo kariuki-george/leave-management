@@ -5,6 +5,7 @@ export class ILeaveType {
   name: string;
   isAnnualLeaveBased: boolean;
   maxDays: number;
+  disabled: boolean;
 }
 
 export class ILeave {

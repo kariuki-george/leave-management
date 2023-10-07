@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { CreateLeaveTypeDto, UpdateLeaveTypeDto } from './dtos/index.dtos';
 import { ILeaveType } from './models/index.models';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class LeaveTypesService {
@@ -41,10 +42,13 @@ export class LeaveTypesService {
     }
   }
 
-  async getAll(): Promise<ILeaveType[]> {
+  async getAll(filter: Prisma.LeaveTypesWhereInput): Promise<ILeaveType[]> {
     // Check cache
 
-    const leaveTypes = await this.dbService.leaveTypes.findMany();
+    const leaveTypes = await this.dbService.leaveTypes.findMany({
+      orderBy: { disabled: 'asc' },
+      where: filter,
+    });
 
     return leaveTypes;
   }

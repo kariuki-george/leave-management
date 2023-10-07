@@ -28,7 +28,7 @@ export class FinyearService {
 
   async getFinYears(): Promise<FinYear[]> {
     await this.getCurrentFinYear();
-    return this.dbService.finYear.findMany();
+    return this.dbService.finYear.findMany({ orderBy: { startDate: 'desc' } });
   }
 
   async getCurrentFinYear(): Promise<FinYear> {
@@ -74,8 +74,6 @@ export class FinyearService {
 
     const startDate = startOfMonth(new Date(currentYear, 6, 1)).toDateString();
     const endDate = lastDayOfMonth(new Date(currentYear + 1, 5)).toDateString();
-
-    console.log(startDate, endDate);
 
     return { endDate, startDate };
   }

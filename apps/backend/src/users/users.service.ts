@@ -169,6 +169,7 @@ export class UsersService {
         gender: true,
       },
       where: filter,
+      orderBy: { email: 'asc' },
     });
 
     return users;
@@ -186,6 +187,7 @@ export class UsersService {
         isAdmin: true,
       },
       where: { disabled },
+      orderBy: { email: 'asc' },
     });
   }
 

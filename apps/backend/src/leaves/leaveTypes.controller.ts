@@ -40,7 +40,7 @@ export class LeaveTypesController {
   @Get()
   @UseGuards(AuthGuard)
   getAll(): Promise<ILeaveType[]> {
-    return this.leaveTypesService.getAll();
+    return this.leaveTypesService.getAll({});
   }
   @Put()
   @UseGuards(AuthGuard, RolesGuard)
