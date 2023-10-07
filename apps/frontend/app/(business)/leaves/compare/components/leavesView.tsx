@@ -15,10 +15,10 @@ import {
 interface Props {
   userLeaves: IUserLeave[];
   monthDates: Date[];
+  colors: { [key: string]: string };
 }
 
-const LeavesView = ({ userLeaves, monthDates }: Props) => {
-  console.log('rendered');
+const LeavesView = ({ userLeaves, monthDates, colors }: Props) => {
   return (
     <div className="flex w-full overflow-x-auto  ">
       <div className="  flex w-[200px] min-w-[200px] flex-col rounded-l-sm  border  ">
@@ -41,25 +41,19 @@ const LeavesView = ({ userLeaves, monthDates }: Props) => {
             </div>
           ))}
         </ul>
-        {userLeaves?.map(({ leaves }, index) => (
+        {userLeaves?.map(({ leaves }, userLeaveIndex) => (
           <ul
             className={cn('flex h-[40px] w-full min-w-[600px] flex-row   ')}
-            key={index}
+            key={userLeaveIndex}
           >
             {monthDates.map((date, index) => {
-              // Mismatch between server and client month numbers
+              // NOTE: Mismatch between server and client month numbers
               // Server: 1-12
               // client: 0-11
 
               const presentHoliday =
                 leaves[format(addMonths(date, 0), 'MM/dd/yyyy')];
-              console.log(date, 'cal');
-              console.log(leaves, 'leaves');
-              console.log(
-                format(addMonths(date, 0), 'MM/dd/yyyy'),
-                'formatted calendar'
-              );
-              console.log(Boolean(presentHoliday));
+
               return (
                 <div
                   key={index}
@@ -67,8 +61,7 @@ const LeavesView = ({ userLeaves, monthDates }: Props) => {
                 >
                   <span
                     className={cn(
-                      'flex h-full w-[60px] items-center justify-center',
-                      ''
+                      'flex h-full w-[60px] items-center justify-center'
                     )}
                   >
                     <TooltipProvider>
@@ -76,7 +69,7 @@ const LeavesView = ({ userLeaves, monthDates }: Props) => {
                         <TooltipTrigger
                           className={cn(
                             'h-6 w-6 rounded-full',
-                            presentHoliday && 'bg-green-200'
+                            presentHoliday && colors[presentHoliday.code]
                           )}
                         ></TooltipTrigger>
                         <TooltipContent>

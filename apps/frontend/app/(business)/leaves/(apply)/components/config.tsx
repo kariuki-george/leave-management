@@ -83,11 +83,13 @@ const ConfigLeave = ({
           <SelectValue placeholder="Select Leave Type" />
         </SelectTrigger>
         <SelectContent>
-          {data?.map((leave) => (
-            <SelectItem key={leave.code} value={leave.code}>
-              {leave.name}
-            </SelectItem>
-          ))}
+          {data
+            ?.filter((leave) => !leave.disabled)
+            .map((leave) => (
+              <SelectItem key={leave.code} value={leave.code}>
+                {leave.name}
+              </SelectItem>
+            ))}
         </SelectContent>
       </Select>
 

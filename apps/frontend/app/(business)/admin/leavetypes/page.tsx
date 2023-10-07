@@ -2,9 +2,9 @@
 
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import React from 'react';
-import UsersTable from './components/leaveTypesTable';
+import LeaveTypesTable from './components/leaveTypesTable';
 import { useQuery } from '@tanstack/react-query';
-import { getAllUsers, getLeaveTypes } from '@/lib/fetchers';
+import { getLeaveTypes } from '@/lib/fetchers';
 import dynamic from 'next/dynamic';
 import { Icons } from '@/components/icons';
 
@@ -40,7 +40,7 @@ const Admin = () => {
       </div>
       {/* Latest leaves */}
       <div className="my-4  w-full overflow-auto rounded-sm border ">
-        <UsersTable leaveTypes={data || []} />
+        <LeaveTypesTable leaveTypes={data || []} />
       </div>
     </div>
   );

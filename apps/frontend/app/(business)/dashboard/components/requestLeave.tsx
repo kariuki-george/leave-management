@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react';
 import {
   Select,
   SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -25,7 +24,6 @@ import { addLeave } from '@/lib/fetchers';
 import { useAuthStore } from '@/state/auth.state';
 import { countWeekdays } from '@/lib/helpers';
 import { queryClient } from '@/lib/providers/reactquery.provider';
-import { ILeaveWithUser } from '@/lib/types/leave';
 
 const RequestLeaveForm = () => {
   const [startDate, setStartDate] = useState<Date>();
@@ -79,16 +77,12 @@ const RequestLeaveForm = () => {
   }, [startDate, endDate]);
 
   // Handle submit
-  const { setUser, user } = useAuthStore((state) => state);
+  const { user } = useAuthStore((state) => state);
   const { isLoading, mutate } = useMutation({
     mutationFn: addLeave,
-    onSuccess: ({ data }: { data: ILeaveWithUser }) => {
+    onSuccess: () => {
       toast({ title: 'Added your leave successfully!' });
-      // setUser({
-      //   ...user!,
-      //   leaveRemaining:
-      //     data.users?.leaveRemaining ?? user?.leaveRemaining! - totalDays,
-      // });
+
       // To get the realtime update on the year page
       queryClient.invalidateQueries(['userLeaves', user?.userId]);
       queryClient.invalidateQueries(['recentLeaves']);
@@ -111,15 +105,6 @@ const RequestLeaveForm = () => {
       return;
     }
 
-    // if (totalDays > user?.leaveRemaining!) {
-    //   toast({
-    //     variant: 'destructive',
-    //     title:
-    //       'Total number of days should be less than the number of remaining leaves',
-    //   });
-    //   return;
-    // }
-
     mutate({
       totalDays,
       code: leaveType,
@@ -135,13 +120,7 @@ const RequestLeaveForm = () => {
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Select Leave Type" />
         </SelectTrigger>
-        <SelectContent>
-          {/* {leaveTypes.map((leave) => (
-            <SelectItem key={leave.code} value={leave.code}>
-              {leave.name}
-            </SelectItem>
-          ))} */}
-        </SelectContent>
+        <SelectContent></SelectContent>
       </Select>
 
       {/* Start Date */}

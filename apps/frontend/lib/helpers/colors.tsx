@@ -1,4 +1,4 @@
-export const colors = [
+export const ltColors = [
   'bg-green-300',
   'bg-red-300',
   'bg-purple-300',

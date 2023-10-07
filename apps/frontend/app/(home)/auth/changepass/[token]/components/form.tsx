@@ -1,14 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/state/auth.state';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import * as z from 'zod';
 
 import { siteConfig } from '@/config/site';
-import { changePassword, login } from '@/lib/fetchers';
+import { changePassword } from '@/lib/fetchers';
 import { Button } from '@/components/ui/button';
 import {
   Form,

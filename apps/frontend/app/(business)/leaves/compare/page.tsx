@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import {
   eachDayOfInterval,
@@ -17,10 +17,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useQuery } from '@tanstack/react-query';
-import { getFinYears, getUsersLeaves } from '@/lib/fetchers';
+import { getFinYears, getLeaveTypes, getUsersLeaves } from '@/lib/fetchers';
 import { FinYear } from '@/lib/types/finyear';
 import { Icons } from '@/components/icons';
 import LeavesView from './components/leavesView';
+import { ltColors } from '@/lib/helpers/colors';
 
 const Comparepage = () => {
   // Get and set the financial year
@@ -30,6 +31,24 @@ const Comparepage = () => {
     queryFn: getFinYears,
     queryKey: ['financialYears'],
   });
+
+  // Get leaveTypes
+  const { data } = useQuery({
+    queryFn: getLeaveTypes,
+    queryKey: ['leaveTypes'],
+  });
+
+  // Set colors
+
+  const colors = useMemo(() => {
+    const map: { [key: string]: string } = {};
+
+    data?.forEach(({ code }, index) => {
+      map[code] = ltColors[index % ltColors.length];
+    });
+    return map;
+  }, [data]);
+
   // Set month to filter
   const [month, setMonth] = useState<string>();
   const months = [
@@ -77,11 +96,10 @@ const Comparepage = () => {
     setMonthDatesFunc();
   }, [month, finYear]);
 
-  // Get leaaves
+  // Get leaves
 
   const getUsersLeavesFunc = useQuery({
     queryFn: async () => {
-      console.log('hit');
       if (month && finYear) {
         const list = setMonthDatesFunc()!;
         const data = await getUsersLeaves(
@@ -92,7 +110,7 @@ const Comparepage = () => {
         return data;
       }
     },
-    queryKey: ['ss', month, finYear?.finYearId.toString()],
+    queryKey: ['leaves', month, finYear?.finYearId.toString()],
     enabled: Boolean(finYear && month),
   });
 
@@ -156,6 +174,7 @@ const Comparepage = () => {
       {getUsersLeavesFunc.data && !getUsersLeavesFunc.isLoading && (
         <LeavesView
           monthDates={monthDates}
+          colors={colors}
           userLeaves={getUsersLeavesFunc.data || []}
         />
       )}

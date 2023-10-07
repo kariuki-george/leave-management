@@ -1,16 +1,12 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-
 import { toast } from '@/components/ui/use-toast';
 import { useMutation } from '@tanstack/react-query';
 import { addLeave, checkLeave } from '@/lib/fetchers';
-
 import { queryClient } from '@/lib/providers/reactquery.provider';
-import { ILeaveWithUser } from '@/lib/types/leave';
 import OnLeaveTable from './components/onLeaveTable';
 import ConfigLeave from './components/config';
-import { Icons } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 
 const ApplyLeavePage = () => {
@@ -33,7 +29,7 @@ const ApplyLeavePage = () => {
   // Create a leave
   const createLeaveFunc = useMutation({
     mutationFn: addLeave,
-    onSuccess: ({ data }: { data: ILeaveWithUser }) => {
+    onSuccess: () => {
       setStartDate(undefined);
       setEndDate(undefined);
       setLeaveType('');
@@ -42,7 +38,6 @@ const ApplyLeavePage = () => {
       // TODO: Invalidate cache
       // To get the realtime update on the year page
       queryClient.invalidateQueries(['recentLeaves']);
-      queryClient.invalidateQueries(['getUsers']);
     },
   });
 
@@ -70,10 +65,7 @@ const ApplyLeavePage = () => {
         startDate={startDate}
       />
 
-      <div className="my-4 flex h-1 flex-col justify-center">
-        <hr />
-        {checkLeaveFunc.isLoading && <Icons.spinner />}
-      </div>
+      <div className="my-8 flex  w-full flex-col items-center justify-center gap-1 border-t"></div>
 
       <div className="my-4 w-full rounded-sm border ">
         <OnLeaveTable leaves={checkLeaveFunc.data?.data?.usersOnLeave ?? []} />
@@ -88,7 +80,7 @@ const ApplyLeavePage = () => {
         }
         isLoading={createLeaveFunc.isLoading || checkLeaveFunc.isLoading}
       >
-        Apply for {checkLeaveFunc.data?.data?.allLeaveDays.length ?? 0} days
+        Apply for {checkLeaveFunc.data?.data?.allLeaveDays.length ?? 0} day(s)
       </Button>
     </div>
   );

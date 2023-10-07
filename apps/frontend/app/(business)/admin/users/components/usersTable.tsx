@@ -33,6 +33,7 @@ const RecentLeavesTable = ({ users }: Props) => {
     onSuccess: () => {
       toast({ title: 'Updated user successfully!' });
       queryClient.invalidateQueries({ queryKey: ['allUsers', true] });
+      queryClient.invalidateQueries({ queryKey: ['allUsers', false] });
       setUserId(0);
     },
   });
@@ -73,6 +74,7 @@ const RecentLeavesTable = ({ users }: Props) => {
                 <Button
                   isLoading={isLoading && user.userId === userId}
                   onClick={() => {
+                    setUserId(user?.userId);
                     handleDisabled(user?.userId!, false);
                   }}
                   className="-m-1"
@@ -87,6 +89,7 @@ const RecentLeavesTable = ({ users }: Props) => {
                   <Button
                     isLoading={isLoading && user.userId === userId}
                     onClick={() => {
+                      setUserId(user?.userId);
                       handleDisabled(user?.userId!, true);
                     }}
                     className="-m-1"

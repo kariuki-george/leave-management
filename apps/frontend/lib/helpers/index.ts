@@ -28,7 +28,7 @@ export const prepareUserLeaves = (
   const summary: ISummary = {};
   for (const leaveTypeIndex in leaveTypes) {
     const leaveType = leaveTypes[leaveTypeIndex];
-    summary[leaveType.code] = { total: 0, days: []};
+    summary[leaveType.code] = { total: 0, days: [] };
   }
   for (const index in leaves) {
     const leave = leaves[index];

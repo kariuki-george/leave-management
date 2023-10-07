@@ -54,10 +54,6 @@ export const RegisterForm = () => {
     },
   });
   function onSubmit(values: z.infer<typeof formSchema>) {
-    alert(values.email + 'ha');
-
-    return;
-
     if (values.confirmPassword !== values.password) {
       return toast({
         title: 'An error occurred',

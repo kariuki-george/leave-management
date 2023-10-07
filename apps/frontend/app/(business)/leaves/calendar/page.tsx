@@ -9,7 +9,6 @@ import {
   getUsers,
 } from '@/lib/fetchers';
 import { prepareUserLeaves } from '@/lib/helpers';
-import { queryClient } from '@/lib/providers/reactquery.provider';
 import { ILeave } from '@/lib/types/leave';
 import { IUser } from '@/lib/types/user';
 import { cn } from '@/lib/utils';
@@ -18,7 +17,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { Icons } from '@/components/icons';
-import { colors } from '@/lib/helpers/colors';
+import { ltColors } from '@/lib/helpers/colors';
 
 const SelectUserTrigger = dynamic(
   () => import('./components/selectUserTrigger'),
@@ -43,33 +42,28 @@ const Year = () => {
   });
 
   // Cache colors with leaveTypes
-  const [leaveTypeColor, setLeaveTypeColor] = useState<{
-    [key: string]: string;
-  }>({});
 
   // Get leavetypes
   const leaveTypes = useQuery({
     queryKey: ['leaveTypes'],
     queryFn: getLeaveTypes,
-    onSuccess: (data) => {
-      if (data.length > 0) {
-        setActiveLeaveType(data[0].code);
-      }
-
-      data.forEach(({ code }, index) => {
-        setLeaveTypeColor((prev) => {
-          prev[code] = colors[index % colors.length];
-          return prev;
-        });
-      });
-    },
   });
+
+  const leaveTypeColor = useMemo(() => {
+    const map: { [key: string]: string } = {};
+
+    leaveTypes.data?.forEach(({ code }, index) => {
+      map[code] = ltColors[index % ltColors.length];
+    });
+    return map;
+  }, [leaveTypes]);
 
   // Get financial Year
   const finYears = useQuery({
     queryFn: getFinYears,
     queryKey: ['financialYears'],
     onSuccess: (data) => {
+      // NOTE: In most cases, the first element will be the current finYear
       for (const index in data) {
         const finYear = data[index];
         if (finYear.status === 'CURRENT') {
@@ -93,25 +87,13 @@ const Year = () => {
     keepPreviousData: true,
     enabled: Boolean(currentUser && activeFinYear),
   });
-  useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: ['userLeaves', currentUser] });
-  }, [currentUser]);
 
   // Prepare leaves
-
-  // const cachedValue = useMemo(calculateValue, dependencies);
   const cachedSummary = useMemo(() => {
     if (data) {
       return prepareUserLeaves(data as ILeave[], leaveTypes?.data ?? []);
     }
   }, [data]);
-
-  // Define the custom styles
-  const modifierStyles = {
-    selected: {
-      backgroundColor: cn(colors[0]),
-    },
-  };
 
   return (
     <div className="mb-10 flex  h-screen w-full flex-col gap-3 overflow-y-auto   sm:flex-row sm:overflow-y-hidden">
@@ -167,7 +149,7 @@ const Year = () => {
         {/* User summary */}
         <section className="mt-5 flex w-full flex-col gap-3 rounded-sm border sm:border-0 ">
           <header className="border-b p-3 text-lg font-bold">Summary</header>
-          <ul className="hover:bg-background flex flex-col gap-3 p-3">
+          <ul className="flex flex-col gap-3 p-3 hover:bg-background">
             {leaveTypes.data?.map(({ code, name }, index) => (
               <li
                 key={index}
@@ -205,11 +187,10 @@ const Year = () => {
             <Calendar
               showOutsideDays={false}
               month={new Date(new Date().setMonth(index + 5))}
-              className="dark:shadow-foreground/10 my-3 shadow  "
+              className="my-3 shadow dark:shadow-foreground/10  "
               cellColor={
                 leaveTypeColor[activeLeaveType as string] ?? 'bg-orange-300'
               }
-              modifiersStyles={modifierStyles}
               key={index}
               mode="multiple"
               disableNavigation={true}

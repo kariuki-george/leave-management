@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import UsersTable from './components/usersTable';
 import { useQuery } from '@tanstack/react-query';
 import { getAllUsers } from '@/lib/fetchers';
@@ -16,7 +16,6 @@ const NewUser = dynamic(() => import('./components/newUserSheet'), {
 
 const Admin = () => {
   const [showActive, setShowActive] = useState<boolean>(true);
-  // const data = useFetchHook({ disabled: !showActive });
   const { data } = useQuery({
     queryFn: () => {
       return getAllUsers(!showActive);
@@ -31,7 +30,7 @@ const Admin = () => {
         {/* Total leaves */}
         <Card className="flex w-full  max-w-[250px] flex-col items-center  justify-between">
           <CardHeader className="w-full border-b text-center">
-            All Users
+            All {showActive ? 'Active' : 'Disabled'} Users
           </CardHeader>
           <CardDescription className="p-3 text-lg font-bold">
             {data?.length ?? 0}
