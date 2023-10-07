@@ -20,6 +20,7 @@ export class OffdaysController {
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   createOffDay(@Body() input: CreateOffDay, @Req() req): Promise<OffDay> {
+    console.log(input);
     return this.offDaysService.createOffDay(input, req.user.userId.toString());
   }
   @Get()

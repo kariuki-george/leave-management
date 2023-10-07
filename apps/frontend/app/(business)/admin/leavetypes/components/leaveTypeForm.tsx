@@ -62,7 +62,7 @@ const LeaveTypeForm = ({ leaveType }: Props) => {
 
   const formSchema = z.object({
     name: z.string().min(3),
-    maxDays: z.coerce.number().positive().lt(365).optional(),
+    maxDays: z.coerce.number().positive().lte(365).optional(),
     isAnnualLeaveBased: z.boolean(),
     code: z.string().min(1),
   });

@@ -96,7 +96,7 @@ const Year = () => {
   }, [data]);
 
   return (
-    <div className="mb-10 flex  h-screen w-full flex-col gap-3 overflow-y-auto   sm:flex-row sm:overflow-y-hidden">
+    <div className="mb-10 flex h-screen w-full  flex-col gap-3 overflow-y-auto p-3 sm:flex-row   sm:overflow-y-hidden md:p-0">
       {/* Side with user details */}
       <div className="min-w-400px flex h-full w-full flex-col border-0  sm:w-1/3 sm:border-r sm:p-3">
         {/* Select User */}
@@ -149,7 +149,7 @@ const Year = () => {
         {/* User summary */}
         <section className="mt-5 flex w-full flex-col gap-3 rounded-sm border sm:border-0 ">
           <header className="border-b p-3 text-lg font-bold">Summary</header>
-          <ul className="flex flex-col gap-3 p-3 hover:bg-background">
+          <ul className="hover:bg-background flex flex-col gap-3 p-3">
             {leaveTypes.data?.map(({ code, name }, index) => (
               <li
                 key={index}
@@ -187,7 +187,7 @@ const Year = () => {
             <Calendar
               showOutsideDays={false}
               month={new Date(new Date().setMonth(index + 5))}
-              className="my-3 shadow dark:shadow-foreground/10  "
+              className="dark:shadow-foreground/10 my-3 shadow  "
               cellColor={
                 leaveTypeColor[activeLeaveType as string] ?? 'bg-orange-300'
               }

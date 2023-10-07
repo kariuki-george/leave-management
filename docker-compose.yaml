@@ -23,6 +23,9 @@ services:
       - traefik.http.routers.lms-api.tls=true
       - traefik.http.routers.lms-api.tls.certresolver=lets-encrypt
       - traefik.port=54500
+    volumes:
+      - ./logs:/app/logs
+
   lms-web:
     hostname: lms-web
     image: lms-web:latest

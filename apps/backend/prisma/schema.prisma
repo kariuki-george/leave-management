@@ -81,6 +81,7 @@ model OffDays {
   author    String?
   disabled Boolean @default(false)
   recurring Boolean @default(false)
+ 
 
   @@unique([date, name])
 }

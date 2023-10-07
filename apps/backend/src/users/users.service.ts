@@ -64,7 +64,6 @@ export class UsersService {
           jwtVersion: 0,
         },
       });
-      await this.invalidateCache(user.userId);
 
       return this.cleanUser(user as Users);
     } catch (error) {
@@ -118,7 +117,6 @@ export class UsersService {
       where: { userId },
       data: { disabled, isAdmin, firstName, lastName, gender },
     });
-    await this.invalidateCache(userId);
 
     return this.cleanUser(user);
   }
@@ -131,13 +129,8 @@ export class UsersService {
       where: { userId },
       data: { jwtVersion, password },
     });
-    await this.invalidateCache(userId);
 
     return this.cleanUser(user);
-  }
-
-  async invalidateCache(userId: number) {
-    return;
   }
 
   async getUser(userId: number): Promise<IUser> {

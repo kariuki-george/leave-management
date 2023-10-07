@@ -1,8 +1,8 @@
 import { PrismaService } from '@db';
 import { Injectable } from '@nestjs/common';
 import { FinYear } from './models/index.models';
-import { SharedService } from 'src/shared/shared.service';
 import {
+  format,
   isFuture,
   isPast,
   isToday,
@@ -72,8 +72,14 @@ export class FinyearService {
     // Leave year starts on July year1 to June year2
     const currentYear = new Date().getFullYear();
 
-    const startDate = startOfMonth(new Date(currentYear, 6, 1)).toDateString();
-    const endDate = lastDayOfMonth(new Date(currentYear + 1, 5)).toDateString();
+    const startDate = format(
+      startOfMonth(new Date(currentYear, 6, 1)),
+      'yyyy-MM-dd'
+    );
+    const endDate = format(
+      lastDayOfMonth(new Date(currentYear + 1, 5)),
+      'yyyy-MM-dd'
+    );
 
     return { endDate, startDate };
   }

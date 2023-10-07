@@ -55,6 +55,8 @@ const HolidayForm = ({ offDay }: Props) => {
     if (offDay) {
       updateHoliday.mutate({
         ...values,
+        date: format(values.date, 'yyyy-MM-dd'),
+
         offDayId: offDay.offDayId,
         recurring: Boolean(values.recurring),
       });

@@ -16,7 +16,7 @@ const LeavesCard = () => {
   });
 
   return (
-    <div className="flex w-full flex-wrap gap-3">
+    <div className="flex h-fit w-full flex-wrap justify-center gap-3 md:justify-normal">
       {/* Total leaves */}
       <LeaveCard
         remainingDays={data?.annualLeaveBalance.remainingDays ?? 0}
@@ -33,7 +33,7 @@ const LeavesCard = () => {
         />
       ))}
 
-      <Card className="flex w-full  max-w-[250px] items-center justify-center">
+      <Card className="flex h-[140px] w-full  max-w-[250px] items-center justify-center">
         <CardContent>
           <Link href={siteConfig.nav.leaves.apply}>
             <Button variant={'outline'}>Add leave</Button>

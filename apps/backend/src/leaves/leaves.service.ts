@@ -27,6 +27,7 @@ import {
   startOfMonth,
 } from 'date-fns';
 import { OffdaysService } from 'src/offdays/offdays.service';
+import { FinYear } from 'src/finyear/models/index.models';
 
 [
   {
@@ -125,8 +126,6 @@ export class LeavesService {
           }),
         ]);
       }
-
-      await this.usersService.invalidateCache(user.userId);
 
       return { ...leaveResponse[0], users: user };
     } catch (error) {
@@ -259,11 +258,16 @@ export class LeavesService {
   ): Promise<ICheckLeaveConfig> {
     endDate = this.sharedService.setTime(endDate, true);
     startDate = this.sharedService.setTime(startDate);
-    const finYearId = (await this.finYearService.getCurrentFinYear()).finYearId;
+    const finYear = await this.finYearService.getCurrentFinYear();
     await this.validateLeaveDates(startDate, endDate);
     const leaveType = await this.leaveTypesService.getLeaveType(code);
-    const allLeaveDays = await this.allLeaveDays(finYearId, startDate, endDate);
-    const onLeave = await this.isOnLeave(startDate, endDate, userId, finYearId);
+    const allLeaveDays = await this.allLeaveDays(finYear, startDate, endDate);
+    const onLeave = await this.isOnLeave(
+      startDate,
+      endDate,
+      userId,
+      finYear.finYearId
+    );
 
     if (onLeave.isOnleave) {
       throw new BadRequestException(
@@ -280,7 +284,7 @@ export class LeavesService {
       allLeaveDays.length,
       userId,
       leaveType,
-      finYearId
+      finYear.finYearId
     );
 
     return {
@@ -289,7 +293,7 @@ export class LeavesService {
       leaveType,
       endDate,
       startDate,
-      finYearId,
+      finYearId: finYear.finYearId,
     };
   }
 
@@ -395,7 +399,7 @@ export class LeavesService {
   }
 
   private allLeaveDays = async (
-    finYearId: number,
+    finYear: FinYear,
     start: Date,
     end: Date
   ): Promise<Date[]> => {
@@ -405,7 +409,7 @@ export class LeavesService {
       start,
       end,
     });
-    const offDaysMap = await this.offDaysService.getOffDaysMap(finYearId);
+    const offDaysMap = await this.offDaysService.getOffDaysMap(finYear);
 
     const withoutOffdays = allDates.filter((date) => {
       if (isWeekend(date)) {

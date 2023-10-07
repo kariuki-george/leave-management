@@ -141,7 +141,7 @@ export const getAllUsers = async (disabled: boolean): Promise<IUser[]> => {
 };
 
 export const getUserLeaves = (userId: string, finYearId: number) => {
-  return query(`leaves?userId=${userId}&${finYearId}`);
+  return query(`leaves?userId=${userId}&finYearId=${finYearId}`);
 };
 
 export const createUser = (data: any) => {

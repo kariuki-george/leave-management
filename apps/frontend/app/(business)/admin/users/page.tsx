@@ -26,9 +26,9 @@ const Admin = () => {
   return (
     <div className="h-screen  w-full p-5 ">
       {/* Leaves dash */}
-      <div className="flex w-full gap-3">
+      <div className="flex w-full flex-wrap justify-center gap-3  md:justify-normal">
         {/* Total leaves */}
-        <Card className="flex w-full  max-w-[250px] flex-col items-center  justify-between">
+        <Card className="flex h-[140px] w-full min-w-[140px]  max-w-[250px] flex-col  items-center  justify-between">
           <CardHeader className="w-full border-b text-center">
             All {showActive ? 'Active' : 'Disabled'} Users
           </CardHeader>
@@ -36,12 +36,12 @@ const Admin = () => {
             {data?.length ?? 0}
           </CardDescription>
         </Card>
-        <Card className="flex w-full  max-w-[250px] items-center justify-center">
+        <Card className="flex h-[140px] w-full  max-w-[250px] items-center justify-center">
           <CardDescription>
             <NewUser />
           </CardDescription>
         </Card>
-        <Card className="flex w-full  max-w-[250px] items-center justify-center">
+        <Card className="flex h-[140px] w-full  max-w-[250px] items-center justify-center">
           {/* <CardHeader className="w-full border-b text-center">Show</CardHeader> */}
           <CardDescription className="flex gap-3 p-3 text-lg">
             <Button
