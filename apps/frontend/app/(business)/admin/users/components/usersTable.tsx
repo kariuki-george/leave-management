@@ -83,7 +83,7 @@ const RecentLeavesTable = ({ users }: Props) => {
                   enable
                 </Button>
               ) : (
-                <span className="flex gap-3">
+                <span className="flex items-center gap-3">
                   <UpdateUserSheet user={user} />
 
                   <Button
