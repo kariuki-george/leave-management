@@ -29,17 +29,7 @@ import {
 import { OffdaysService } from 'src/offdays/offdays.service';
 import { FinYear } from 'src/finyear/models/index.models';
 
-[
-  {
-    user: { firstName: 'Kariuki', lastName: 'George' },
-    leaves: {
-      '2023-10-01T21:00:00.000Z': { code: 'SL', name: 'Sick Leave' },
-      '2023-10-02T21:00:00.000Z': { code: 'SL', name: 'Sick Leave' },
-      '2023-10-03T21:00:00.000Z': { code: 'SL', name: 'Sick Leave' },
-      '2023-10-04T21:00:00.000Z': { code: 'SL', name: 'Sick Leave' },
-    },
-  },
-];
+
 @Injectable()
 export class LeavesService {
   private readonly logger = new Logger(LeavesService.name);
