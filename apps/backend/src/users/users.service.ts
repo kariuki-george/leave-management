@@ -113,6 +113,17 @@ export class UsersService {
     userId: number,
     { disabled, isAdmin, firstName, lastName, gender }: AdminUpdateUserDto
   ): Promise<IUser> {
+    // Do not disable  the master and test accounts
+    const master = await this.getUser(userId);
+
+    if (
+      master?.email &&
+      (master.email === 'mail@kariukigeorge.me' ||
+        master.email === 'johndoe@email.com')
+    ) {
+      throw new BadRequestException('Cannot disable this account');
+    }
+
     const user = await this.dbService.users.update({
       where: { userId },
       data: { disabled, isAdmin, firstName, lastName, gender },

@@ -26,6 +26,12 @@ const Login = () => {
           </Link>
         </span>
       </section>
+      <section className="absolute bottom-4 left-4 flex flex-col items-baseline rounded-sm border p-3">
+        <span className="mb-2 w-full border-b pb-1">Test Credentials</span>
+        <span></span>
+        <code className="text-cmd">Email: johndoe@email.com</code>
+        <code>Password: tttttttt</code>
+      </section>
     </div>
   );
 };
