@@ -31,5 +31,6 @@ export const siteConfig = {
       print: '/leaves/print',
       apply: '/leaves',
     },
+    status: 'https://thuo.cronitorstatus.com/',
   },
 };
