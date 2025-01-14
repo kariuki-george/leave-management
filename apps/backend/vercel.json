@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "outputDirectory": "build",
+  "outputDirectory": "dist",
   "buildCommand": "pnpm prisma generate && pnpm build",
   "framework":null,
   "builds": [
