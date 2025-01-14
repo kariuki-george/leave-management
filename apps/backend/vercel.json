@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "outputDirectory": "build",
+  "buildCommand": "pnpm prisma generate && pnpm build",
   "builds": [
     {
       "src": "dist/main.js",
